@@ -1,5 +1,5 @@
 ---
-title: "TPS Analysis Technical Appendix"
+title: "TPS Analysis Technical Report"
 author: "Andrew Nalundasan, Lynna Tran, Rosalie Sherry, Vishaal Diwan"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output: 
