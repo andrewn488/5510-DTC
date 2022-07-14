@@ -1,0 +1,70 @@
+---
+title: "TPS Analysis Technical Appendix"
+author: "Andrew Nalundasan, Lynna Tran, Rosalie Sherry, Vishaal Diwan"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Export this into a word document and do formatting manually for final .docx version
+## Export to PDF if needed since don't know how to make formatting updates (font, spacing, etc.) to templates
+
+### Section Header if needed
+
+1. Executive Summary
+
+2. Introduction 
+
++ Tarragon Property Services - Company Profile
+
+    - Blurbs about what the property does
+
+3. Problem Statement
+
+    - Problem statement here
+    
+4. Literature Review
+
+    + perhaps move this to the end?
+    
+5. Description of Data
+
+    + Define the dataset, explain how it is structured and its value.
+    
+6. Data Preprocessing
+
+    + Define any processes around data preprocessing, if applicable.
+    + manual work done in excel prior to reading into R
+    + simple calculations made in R
+    
+7. Models and Evaluations
+
+    + explain the models used and the evaluations chosen
+    
+8. Interpretations and Analysis
+
+9. Discussion
+
+10. Conclusion
+
+11. References
+
++ Brownlee, J. (2020, August 18). Principal component analysis for dimensionality reduction in python. Machine Learning Mastery. Retrieved July 12, 2022, from https://builtin.com/data-science/step-step-explanation-principal-component-analysis
++ Gupta, P. (2017, November 16). Regularization in machine learning. Medium. Retrieved July 12, 2022, from https://towardsdatascience.com/regularization-in-machine-learning-76441ddcf99a
++ Wingate, R. (2020, August 10). Dimensionality reduction and PCA. Ryan Wingate. Retrieved July 12, 2022, from https://ryanwingate.com/intro-to-machine-learning/unsupervised/dimensionality-reduction-and-pca/
+
+
+12. Appendix (Technical Appendix - include R code)
+
+```{r}
+# insert all code from technical_memo into this code chunk
+```
+

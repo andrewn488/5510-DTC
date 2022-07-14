@@ -1,0 +1,139 @@
+---
+title: "Analysis for Tarragon Property Services" 
+subtitle: "OMSBA 5510 DTC"
+author: "Lynna Tran, Rosalie Sherry, Vishaal Diwan, and Andrew Nalundasan"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  slidy_presentation:
+    theme: cerulean
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Introduction
+=======================================
+<div style="float: left; width: 100%;">
+
+Team:
+
++ Karli Hoffman - Product Owner
++ Vishaal Diwan - Project Manager
++ Lynna Tran - Systems Architect
++ Andrew Nalundasan - Business Analyst
++ Rosalie Sherry - QA Analyst
+
+</div>
+
+Problem Statement
+=======================================
+<div style="float: left; width: 100%;">
+
+Insert Problem Statement here
+
+</div>
+
+Literature Review
+=======================================
+<div style="float: left; width: 100%;">
+
+May decide to leave this at bottom of the deck
+
+</div>
+
+
+Description of Data
+=========================================
+
+We used data provided by TPS
+
+- Ledger Reports
+- Traffic Reports
+- Property List
+
+
+Data Preprocessing
+=========================================
+<div style="float: left; width: 50%;">
+
+- Completed in excel
+- Simple calculations made in R
+
+</div>
+<div style="float: left; width: 50%;">
+
+- Loaded into R
+    
+</div>
+
+
+Models and Evaluations
+=========================================
+
+Models and evaluations here
+
+
+Interpretations and Analysis
+=========================================
+<div style="float: left; width: 50%;">
+
+- Interpretations here
+
+</div>
+<div style="float: left; width: 50%;">
+
+- Analysis here
+    
+</div>
+
+
+Discussion
+=========================================
+<div style="float: left; width: 100%;">
+
+Discussion made here
+
++ Discuss key findings
++ Start pitching recommendations
+
+</div>
+
+
+Conclusion
+=========================================
+<div style="float: left; width: 50%;">
+
+- Conclusions made here
+
+</div>
+
+<div style="float: left; width: 50%;">
+
+- Conclusions made here
+    
+</div>
+
+
+References
+=========================================
+<div style="float: left; width: 100%;">
+
++ Brownlee, J. (2020, August 18). Principal component analysis for dimensionality reduction in python. Machine Learning Mastery. Retrieved July 12, 2022, from https://builtin.com/data-science/step-step-explanation-principal-component-analysis
++ Gupta, P. (2017, November 16). Regularization in machine learning. Medium. Retrieved July 12, 2022, from https://towardsdatascience.com/regularization-in-machine-learning-76441ddcf99a
++ Wingate, R. (2020, August 10). Dimensionality reduction and PCA. Ryan Wingate. Retrieved July 12, 2022, from https://ryanwingate.com/intro-to-machine-learning/unsupervised/dimensionality-reduction-and-pca/
+
+</div>
+
+
+Questions?
+=========================================
+<div style="float: left; width: 100%;">
+
+</div>
+
+Thank you!
+=========================================
+<div style="float: left; width: 100%;">
+
+</div>

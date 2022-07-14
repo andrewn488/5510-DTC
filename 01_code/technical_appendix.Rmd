@@ -1,0 +1,81 @@
+---
+title: "TPS Analysis Technical Appendix"
+author: "Andrew Nalundasan, Lynna Tran, Rosalie Sherry, Vishaal Diwan"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    number_sections: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Read-in the data
+
++ Data pre-processing occurred in excel using manual formatting
++ No complex wrangling anticipated
++ After verifying the raw data was formatted correctly, we read in the data
+
+Read-in Ledger Reports
+```{r}
+
+```
+
+
+Read-in Traffic Reports 
+```{r}
+
+```
+
+
+# Combine Ledger Reports 
+```{r}
+# pipeline to join all reports for base_1 datasets
+```
+
+
+# Combine Traffic Reports 
+```{r}
+# pipeline to join all reports for base_1 datasets
+```
+
+
+# Machine Learning Algorithm
+
++ supervised learning for prediction model
+
+    + variables that drive tenants to sign a lease
+    + variables that deter tenants to sign a lease
+
+
++ pearson correlation
++ add in a correlation matrix just to make it look fancy
++ run some regressions
+
+
+# Interpretation of results
+
++ highly correlated variables
++ lower correlated variables
++ regression analysis
++ interaction variables
++ interpretation of variability
+
+# Conclusion
+
+
+
+# Future Research
+
+
+
+
+
+
+
+
+
