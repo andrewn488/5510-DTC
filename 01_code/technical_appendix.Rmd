@@ -14,6 +14,13 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+# load libraries
+library(readxl)
+library(tidyverse)
+```
+
+
 # Read-in the data
 
 + Data pre-processing occurred in excel using manual formatting
@@ -22,6 +29,23 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Read-in Ledger Reports
 ```{r}
+# read-in data
+
+ledger_balance <- read_excel("../02_raw_data/ledger/Ledger Beginning and Ending Balances.xlsx")
+ledger_01 <- read_excel("../02_raw_data/ledger/CLEAN  54445 - MAILINGS AND NEWSLETTER.xlsx")
+ledger_02 <- read_excel("../02_raw_data/ledger/CLEAN 54410 - MARKETING.xlsx")
+ledger_03 <- read_excel("../02_raw_data/ledger/CLEAN 54425 - WEBSITE EXPENSE.xlsx")
+ledger_04 <- read_excel("../02_raw_data/ledger/CLEAN 54430 - BRANDING EXPENSE.xlsx")
+ledger_05 <- read_excel("../02_raw_data/ledger/CLEAN 54435 - PUBLIC RELATIONS.xlsx")
+ledger_06 <- read_excel("../02_raw_data/ledger/CLEAN 54455 - TENANT RELATIONS.xlsx")
+ledger_07 <- read_excel("../02_raw_data/ledger/CLEAN 54465 - BROCHURE AND BUSINESS CARDS.xlsx")
+ledger_08 <- read_excel("../02_raw_data/ledger/CLEAN 54475 - DUES MEMBERSHIPS SUBSCRIPTIONS.xlsx")
+ledger_09 <- read_excel("../02_raw_data/ledger/CLEAN 54480 - INTERNET ADVERTISING.xlsx")
+ledger_10 <- read_excel("../02_raw_data/ledger/CLEAN 54481 - INTERNET LISTING SERVICES.xlsx")
+ledger_11 <- read_excel("../02_raw_data/ledger/CLEAN 54482 - SEO SERVICES.xlsx")
+ledger_12 <- read_excel("../02_raw_data/ledger/CLEAN 54485 - SIGN POSTERS OTHER.xlsx")
+ledger_13 <- read_excel("../02_raw_data/ledger/CLEAN 54490 - MODEL EXPENSE.xlsx")
+ledger_14 <- read_excel("../02_raw_data/ledger/CLEAN 54495 - REFERRAL COMMISSIONS.xlsx")
 
 ```
 
@@ -35,6 +59,19 @@ Read-in Traffic Reports
 # Combine Ledger Reports 
 ```{r}
 # pipeline to join all reports for base_1 datasets
+ledger_base <- bind_rows(x = ledger_01, y = ledger_02)
+ledger_base <- bind_rows(x = ledger_base, y = ledger_03)
+ledger_base <- bind_rows(x = ledger_base, y = ledger_04)
+ledger_base <- bind_rows(x = ledger_base, y = ledger_05)
+ledger_base <- bind_rows(x = ledger_base, y = ledger_06)
+ledger_base <- bind_rows(x = ledger_base, y = ledger_07)
+ledger_base <- bind_rows(x = ledger_base, y = ledger_08)
+ledger_base <- bind_rows(x = ledger_base, y = ledger_09)
+ledger_base <- bind_rows(x = ledger_base, y = ledger_10)
+ledger_base <- bind_rows(x = ledger_base, y = ledger_11)
+ledger_base <- bind_rows(x = ledger_base, y = ledger_12)
+ledger_base <- bind_rows(x = ledger_base, y = ledger_13)
+ledger_base <- bind_rows(x = ledger_base, y = ledger_14)
 ```
 
 
