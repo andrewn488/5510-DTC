@@ -16,14 +16,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 # load libraries
-library(readxl)
-library(tidyverse)
-<<<<<<< HEAD
-library(jtools)
-library(vtable)
-=======
+library(readxl)  # to read in data
+library(tidyverse)  
+library(jtools)  # for export_summs
+library(vtable)  # for vtable
 library(dplyr)
->>>>>>> bd8da6767b4a6c99ba3122e5e90acc58edec81a3
+library(lubridate) # to cast date-time datatypes
+library(gridExtra)  # for grid arrange
+library(janitor)  # for tabyl
 ```
 
 
@@ -121,17 +121,216 @@ trafficReportList <- bind_rows(aster, beryl, blacklake, boxcar, chinook, cobble,
                            dwell, edition, fourlakes, glacier1, glacier2, monticello,
                            palermo, renwood, riverside,sawyertrail_th1,    sawyertrail_th2,
                            sawyertrail1, sawyertrail2, wacourtflat, wacourtres, wacourtvillage)
-  
 
+summary(trafficReportList)
+vtable(trafficReportList)
+```
+
+# Wrangle data
+
+```{r}
+# all data in trafficReportList string type
+# need to convert datatypes 
+
+# Unit Type - Factor?
+
+trafficReportList <- trafficReportList %>% 
+  mutate("Status" = as.factor(Status)) %>% 
+  mutate("Result/Reason" = as.factor(`Result/ Reason`)) %>% 
+  mutate("Source" = as.factor(Source))
+
+# filter 'Source' to top 10
+trafficReportList <- trafficReportList %>% 
+  filter(Source %in% c("Apartmentlist.com", "Craigslist", 'Driveby', 
+                       'Facebook', 'Google Plus', 'Property Website', 
+                       'Zillow', 'Tarragon Website', 'Referrals', 'Rent.com')) %>% 
+  filter(`Result/Reason` %in% c("Apartment List","Desired move-in date not avail", 
+                                "Duplicate", "Found another apartment",
+                                "Leased an Apartment", "Nothing", "Online Lead",
+                                "Personal", "Still looking / Undecided", "Took Application"))
+  
+# Can't change 'Event Date' to date type. Need help on this.
+# as.Date("Event Date", format =  "%mm/%dd/%YYYY")
 ```
 
 
-# Machine Learning Algorithm
 
-+ supervised learning for prediction model
+# Base EDA Step 1: Uni-variate non-graphical EDA
+```{r}
+# top of the dataset and look each subset
+head(trafficReportList)
+```
 
-    + variables that drive tenants to sign a lease
-    + variables that deter tenants to sign a lease
++ data appears to be tidy
+
+    + data in each column is of the same variable type
+    + no duplicate columns
+    + each row is an observation for the sale of a specific home
+    
+```{r}
+# check variable table
+vtable(trafficReportList)
+```
+
++ Property Name - string
++ Unit type - string
++ Unit - string
++ Applicant/Prospect - string
++ Event Date - datetime
++ Source - Categorical
++ Status - Categorical
++ Result/ Reason - Categorical
+
+```{r}
+summary(trafficReportList)
+```
+
+**Comments**
+
++ can't tell much since all variables are strings
+
+**Questions**
+
++ How to convert string to date type
+
+# Base EDA Step 2: Uni-variate graphical EDA - Categorical
+
+```{r}
+# Only use bar graphs (like histogram) because nothing like boxplot for categorical variables
+grid.arrange(
+
+# Source 
+ggplot(data = trafficReportList, mapping = aes(x = `Source`)) +
+  geom_bar() + 
+  coord_flip(), 
+
+# Status
+ggplot(data = trafficReportList, mapping = aes(x = Status)) +
+  geom_bar() + 
+  coord_flip(),
+
+# Result/ Reason
+ggplot(data = trafficReportList, mapping = aes(x = `Result/Reason`)) + 
+  geom_bar() + 
+  coord_flip(),
+
+ncol = 2 )
+```
+
+**Comments**
+
++ Too many factors for 'Source'
++ Need to filter to top 5
++ Too many factors for 'Result/Reason'
++ Need to filter to top 5
+
+```{r}
+# find highest factors in 'Source' and 'Result/Reason' 
+
+trafficReportList %>% 
+  tabyl(`Result/Reason`) %>% # creates table of counts
+  adorn_totals(where = c("row", "col")) %>%  # Total margins
+  adorn_percentages(denominator = "all") %>%   # creates proportions
+  adorn_rounding(2) 
+
+```
+
+**Comments**
+
++ top 10 Source: 
+
+    + Apartmentlist.com
+    + Craigslist
+    + Driveby
+    + Facebook
+    + Google Plus
+    + Property Website
+    + Zillow
+    + Tarragon Website
+    + Refferrals
+    + Rent.com
+
++ top 10 Result/Reason:
+
+    + Apartment List
+    + Desired move-in date not avail
+    + Duplicate
+    + Found another apartment
+    + Leased an Apartment
+    + Nothing
+    + Online Lead
+    + Personal
+    + Still looking / Undecided
+    + Took Application
+
+
+
+```{r}
+cols <- c("Joined" = "#37c871", "Not Joined" = "#ff0000")
+
+p <- trafficReportList %>% 
+  ggplot(mapping = aes(x = `Status`))
+
+p + geom_histogram(bins = 10, position = "dodge", stat = "count") + 
+  scale_fill_manual(values = cols) +
+
+  #aesthetics = "colour") +
+  #scale_fill_manual(c("green", "red")) +
+  labs(title = "Distribution of Status") + 
+  theme(legend.position = "right") + 
+  coord_flip()
+```
+
+
+**Comments**
+
+### Categorical
+
+```{r}
+trafficReportList %>% 
+  filter(Source == 'Apartmentlist.com') %>% 
+  tabyl(Source, Status) %>%     # creates table of counts
+  adorn_totals(where = c("row", "col")) %>%    # Total margins
+  kable() %>% 
+  kableExtra::kable_styling(bootstrap_options = "striped")
+```
+
+```{r}
+grid.arrange(
+  # tile graph on promo and flavor
+  trafficReportList %>% 
+  group_by(Source, Status) %>% 
+  summarize(count = n()) %>% 
+  ggplot(aes(Source, Status)) + 
+  geom_tile())
+```
+
+
+
+# Regression Analysis
+
+Ho: some activity does NOT impact the variable of interest
+
+Ha: some activity DOES impact the variable of interest
+
+Variable of interest <- Status
+
+Ho: Source does not impact Status
+
+Ha: Source impacts Status
+
+```{r}
+
+reg <- trafficReportList %>% 
+  lm(Status ~ ., data = .)
+
+export_summs(reg)
+
+reg <- lm(formula = Status ~ Source, data = trafficReportList)
+
+media_int_reg <- lm(formula = Website ~ Gender, data = media_int)
+```
+
 
 
 + pearson correlation
