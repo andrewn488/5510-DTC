@@ -18,6 +18,8 @@ knitr::opts_chunk$set(echo = TRUE)
 # load libraries
 library(readxl)
 library(tidyverse)
+library(jtools)
+library(vtable)
 ```
 
 
@@ -72,6 +74,8 @@ ledger_base <- bind_rows(x = ledger_base, y = ledger_11)
 ledger_base <- bind_rows(x = ledger_base, y = ledger_12)
 ledger_base <- bind_rows(x = ledger_base, y = ledger_13)
 ledger_base <- bind_rows(x = ledger_base, y = ledger_14)
+summary(ledger_base)
+vtable(ledger_base)
 ```
 
 
