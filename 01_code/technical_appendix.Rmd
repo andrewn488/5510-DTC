@@ -18,8 +18,15 @@ knitr::opts_chunk$set(echo = TRUE)
 # load libraries
 library(readxl)
 library(tidyverse)
+library(dplyr)
 ```
 
+
+```{r Directory for Lynna}
+setwd("/Users/lynnatran/Documents/MSBA/Capstone Project/Repository/5510-DTC/02_rawdata")
+
+
+```
 
 # Read-in the data
 
@@ -52,6 +59,31 @@ ledger_14 <- read_excel("../02_raw_data/ledger/CLEAN 54495 - REFERRAL COMMISSION
 
 Read-in Traffic Reports 
 ```{r}
+property_list <- read_excel("../02_rawdata/PROPERTY LIST_clean.xlsx")
+
+aspen <- read_excel("../02_rawdata/traffic/ASPEN TRAFFIC REPORT_cleean.xlsx")
+aster <- read_excel("../02_rawdata/traffic/ASTER TRAFFIC REPORT_clean.xlsx")
+beryl <- read_excel("../02_rawdata/traffic/BERYL TRAFFIC REPORT_clean.xlsx")
+blacklake  <- read_excel("../02_rawdata/traffic/BLACK LAKE TRAFFIC REPORT_clean.xlsx")
+boxcar  <- read_excel("../02_rawdata/traffic/BOXCAR TRAFFIC REPORT_clean.xlsx")
+chinook  <- read_excel("../02_rawdata/traffic/CHINOOK TRAFFIC REPORT_clean.xlsx")
+cobble  <- read_excel("../02_rawdata/traffic/COBBLE TRAFFIC REPORT_clean.xlsx")
+dwell  <- read_excel("../02_rawdata/traffic/DWELL TRAFFIC REPORT_clean.xlsx")
+edition  <- read_excel("../02_rawdata/traffic/EDITION TRAFFIC REPORT_clean.xlsx")
+fourlakes  <- read_excel("../02_rawdata/traffic/FOUR LAKES TRAFFIC REPORT_clean.xlsx")
+glacier1  <- read_excel("../02_rawdata/traffic/GLACIER TRAFFIC REPORT_clean.xlsx")
+glacier2  <- read_excel("../02_rawdata/traffic/GLACIER II TRAFFIC REPORT_clean.xlsx")
+monticello  <- read_excel("../02_rawdata/traffic/MONTICELLO TRAFFIC REPORT_clean.xlsx")
+palermo  <- read_excel("../02_rawdata/traffic/PALERMO TRAFFIC REPORT_clean.xlsx")
+renwood  <- read_excel("../02_rawdata/traffic/RENWOOD TRAFFIC REPORT_clean.xlsx")
+riverside  <- read_excel("../02_rawdata/traffic/RIVERSIDE TRAFFIC REPORT_clean.xlsx")
+sawyertrail1  <- read_excel("../02_rawdata/traffic/SAWYER TRAIL TRAFFIC REPORT_clean.xlsx")
+sawyertrail2  <- read_excel("../02_rawdata/traffic/SAWYER TRAIL II TRAFFIC REPORT_clean.xlsx")
+sawyertrail_th1  <- read_excel("../02_rawdata/traffic/SAWYER TRAIL TOWNHOMES TRAFFIC REPORT_clean.xlsx")
+sawyertrail_th2  <- read_excel("../02_rawdata/traffic/SAWYER TRAIL TOWNHOMES II TRAFFIC REPORT_clean.xlsx")
+wacourtflat  <- read_excel("../02_rawdata/traffic/WASHINGTON COURT FLATS TRAFFIC REPORT_clean.xlsx")
+wacourtres  <- read_excel("../02_rawdata/traffic/WASHINGTON COURT RESIDENTIAL TRAFFIC REPORT_clean.xlsx")
+wacourtvillage  <- read_excel("../02_rawdata/traffic/WASHINGTON COURT VILLAGE SQUARE TRAFFIC REPORT_clean.xlsx")
 
 ```
 
@@ -78,6 +110,12 @@ ledger_base <- bind_rows(x = ledger_base, y = ledger_14)
 # Combine Traffic Reports 
 ```{r}
 # pipeline to join all reports for base_1 datasets
+trafficReportList <- bind_rows(aster, beryl, blacklake, boxcar, chinook, cobble,
+                           dwell, edition, fourlakes, glacier1, glacier2, monticello,
+                           palermo, renwood, riverside,sawyertrail_th1,    sawyertrail_th2,
+                           sawyertrail1, sawyertrail2, wacourtflat, wacourtres, wacourtvillage)
+  
+
 ```
 
 
