@@ -126,11 +126,147 @@ summary(trafficReportList)
 vtable(trafficReportList)
 ```
 
+```{r}
+# rename factors
+library(car)
+num_scalene <- scalene_works %>% 
+  mutate(num_status = recode(Status,
+                                "Not Joined" = 0,
+                                "Joined" = 1)) %>% 
+  mutate(num_gender = recode(Gender,
+                                "Female" = 0,
+                                "Male" = 1)) %>% 
+  mutate(num_join_bonus = recode(`Joining Bonus`,
+                                 "No" = 0,
+                                 "Yes" = 1))
+
+trafficReportList <- trafficReportList %>%
+  mutate(Source = recode(Source, 
+                         "A-Frame" = "A - Frame"))
+
+
+trafficReportList <- trafficReportList %>% 
+  recode(Source, "A-Frame", "A - Frame")
+
+
+    recode(Source, "A-Frame = A - Frame")
+
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Apartment list","Apartment List")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Applicant grouping","Applicant Grouping")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Desired floorplan not avail","Desired Floorplan not avail")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Desired floorplan not availabl","Desired Floorplan not avail")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Desired Floorplan not availabl","Desired Floorplan not avail")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Desired mone-in date not avail","Desired Move-in date not avail")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Desired move-in date not avail","Desired Move-in date not avail")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Desired Move-in Date not avail","Desired Move-in date not avail")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Desired move in date not avail","Desired Move-in date not avail")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Desired Move in date not avail","Desired Move-in date not avail")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Desired move in date unavail","Desired Move-in date not avail")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Desired Move in date unavail","Desired Move-in date not avail")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Found another apartment","Found another Apartment")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Found another apartment (Unqualified)","Found another Apartment")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Future / 30-days out","Future / 30-Days Out")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Future / 30 days out","Future / 30-Days Out")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Future / 30 Days out","Future / 30-Days Out")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Future/30 days out","Future / 30-Days Out")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Leased an Apartment","Leased")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Not moving","Not Moving")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Not moving (Unqualified)","Not Moving")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Personal (Unqualified)","Personal")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Promote Roommate","Roommate")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Screening process","Screening Process")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Screening process (Unqualified)","Screening Process")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Screening Process (Unqualified)","Screening Process")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Still looking / Undecided","Still Looking / Undecided")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Still looking / Undecided (Unqualified)","Still Looking / Undecided")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Still looking/ Undecided","Still Looking / Undecided")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Still Looking/ Undecided","Still Looking / Undecided")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Still Looking/Undecided","Still Looking / Undecided")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="StillLooking/ Undecided","Still Looking / Undecided")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Timeframe change","Timeframe Change")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Timeframe Change (Unqualified)","Timeframe Change")
+
+trafficReportList$Source <-
+replace(trafficReportList$Source,trafficReportList$Source=="Unqualified (Unqualified)","Unqualified")
+```
+
+
 # Wrangle data
 
 ```{r}
 # all data in trafficReportList string type
 # need to convert datatypes 
+
+trafficReportList <- trafficReportList %>% 
+  recode(`Source`, Resident = 1)
 
 # Unit Type - Factor?
 
@@ -151,7 +287,25 @@ trafficReportList <- trafficReportList %>%
   
 # Can't change 'Event Date' to date type. Need help on this.
 # as.Date("Event Date", format =  "%mm/%dd/%YYYY")
+
+# recode Status vector
+trafficReportList <- trafficReportList %>% 
+  mutate(num_source = rename_wi(Source,
+                         "Resident" = 1,
+                         "Approved" = 1,
+                         "Prospect" = 0, 
+                         "Denied" = 0,
+                         "CanceledGuest" = 0,
+                         "Canceled Guest" = 0,
+                         "Canceled" = 0,
+                         "Applied" = 0)) 
+
+trafficReportList$Source <- recode(trafficReportList$Source, Resident = 1)
+
+
+
 ```
+
 
 
 
@@ -225,14 +379,11 @@ ncol = 2 )
 + Need to filter to top 5
 
 ```{r}
-# find highest factors in 'Source' and 'Result/Reason' 
-
 trafficReportList %>% 
-  tabyl(`Result/Reason`) %>% # creates table of counts
+  tabyl(Source) %>% # creates table of counts
   adorn_totals(where = c("row", "col")) %>%  # Total margins
   adorn_percentages(denominator = "all") %>%   # creates proportions
   adorn_rounding(2) 
-
 ```
 
 **Comments**
@@ -249,6 +400,19 @@ trafficReportList %>%
     + Tarragon Website
     + Refferrals
     + Rent.com
+
+```{r}
+# find highest factors in 'Source' and 'Result/Reason' 
+
+trafficReportList %>% 
+  tabyl(`Result/Reason`) %>% # creates table of counts
+  adorn_totals(where = c("row", "col")) %>%  # Total margins
+  adorn_percentages(denominator = "all") %>%   # creates proportions
+  adorn_rounding(2) 
+
+```
+
+**Comments**
 
 + top 10 Result/Reason:
 
@@ -327,6 +491,9 @@ reg <- trafficReportList %>%
 export_summs(reg)
 
 reg <- lm(formula = Status ~ Source, data = trafficReportList)
+reg <- glm(formula = Status ~ Source, data = trafficReportList, rm.na = TRUE)
+
+export_summs(reg)
 
 media_int_reg <- lm(formula = Website ~ Gender, data = media_int)
 ```
