@@ -270,10 +270,20 @@ trafficReportList <- trafficReportList %>%
 
 # Unit Type - Factor?
 
+library(lubridate)
+
 trafficReportList <- trafficReportList %>% 
   mutate("Status" = as.factor(Status)) %>% 
-  mutate("Result/Reason" = as.factor(`Result/ Reason`)) %>% 
-  mutate("Source" = as.factor(Source))
+  mutate("Source" = as.factor(Source)) %>% 
+  mutate("Result/ Reason" = as.factor(`Result/ Reason`)) %>% 
+  rename("Result/Reason" = "Result/ Reason") %>% 
+  mutate("Event Date" = as.Date("Event Date", format = "%m/%d/%Y"))
+
+# this is resulting in NA's
+# Can't change 'Event Date' to date type. Need help on this.
+# as.Date("Event Date", format =  "%mm/%dd/%YYYY")
+
+
 
 # filter 'Source' to top 10
 trafficReportList <- trafficReportList %>% 
@@ -285,8 +295,7 @@ trafficReportList <- trafficReportList %>%
                                 "Leased an Apartment", "Nothing", "Online Lead",
                                 "Personal", "Still looking / Undecided", "Took Application"))
   
-# Can't change 'Event Date' to date type. Need help on this.
-# as.Date("Event Date", format =  "%mm/%dd/%YYYY")
+
 
 # recode Status vector
 trafficReportList <- trafficReportList %>% 
@@ -491,7 +500,8 @@ reg <- trafficReportList %>%
 export_summs(reg)
 
 reg <- lm(formula = Status ~ Source, data = trafficReportList)
-reg <- glm(formula = Status ~ Source, data = trafficReportList, rm.na = TRUE)
+
+reg <- glm(formula = Status ~ Source, data = trafficReportList)
 
 export_summs(reg)
 
