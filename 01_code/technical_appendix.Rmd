@@ -127,135 +127,211 @@ vtable(trafficReportList)
 ```
 
 ```{r}
-# rename factors
-library(car)
-num_scalene <- scalene_works %>% 
-  mutate(num_status = recode(Status,
-                                "Not Joined" = 0,
-                                "Joined" = 1)) %>% 
-  mutate(num_gender = recode(Gender,
-                                "Female" = 0,
-                                "Male" = 1)) %>% 
-  mutate(num_join_bonus = recode(`Joining Bonus`,
-                                 "No" = 0,
-                                 "Yes" = 1))
-
-trafficReportList <- trafficReportList %>%
-  mutate(Source = recode(Source, 
-                         "A-Frame" = "A - Frame"))
-
+# rename Source
+library(dplyr)
+trafficReportList <- trafficReportList %>% 
+    mutate(Source = case_when(
+         Source %in% c("Apartment list", "Apartment List") ~ "Apartmentlist.com"
+        ,TRUE ~ Source
+        )
+    )
 
 trafficReportList <- trafficReportList %>% 
-  recode(Source, "A-Frame", "A - Frame")
+    mutate(Source = case_when(
+         Source %in% "apartments.com" ~ "Apartments.com"
+        ,TRUE ~ Source
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Source = case_when(
+         Source %in% "Craigslist-Basic Ad" ~ "Craigslist"
+        ,TRUE ~ Source
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Source = case_when(
+         Source %in% c("Drive By/ Signage", "Driveby") ~ "Drive-by/Signage"
+        ,TRUE ~ Source
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Source = case_when(
+         Source %in% "apartments.com" ~ "Apartments.com"
+        ,TRUE ~ Source
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Source = case_when(
+         Source %in% c("Google Ads", "Google My Business", "Google PayPerClick (PPC)",
+                       "Google PayPerClick(PPC)", "Google Plus") ~ "Google"
+        ,TRUE ~ Source
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Source = case_when(
+         Source %in% c("Other", "Other tarragon property", "Other/Online",
+                       "Other/Walk in", "Other/Walk-in") ~ "Other"
+        ,TRUE ~ Source
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Source = case_when(
+         Source %in% c("Zillow Network", "Zillow/Hotpads") ~ "Zillow"
+        ,TRUE ~ Source
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Source = case_when(
+         Source %in% c("Referral - Resident", "Referral- Resident",
+                       "Referrals", "Resident Referral", "Employee Referral",
+                       "Referral - Family Member") ~ "Referral"
+        ,TRUE ~ Source
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Source = case_when(
+         Source %in% c("Property website", "Corporate Website") ~ "Property Website"
+        ,TRUE ~ Source
+        )
+    )
+
+table(trafficReportList$Source)
+```
+
+```{r Status and Result/ Reason}
+trafficReportList <- trafficReportList %>%  rename("Result" = "Result/ Reason") 
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Status = case_when(
+         Status %in% c("Canceled Guest", "CanceledGuest") ~ "Canceled"
+        ,TRUE ~ Status
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Result = case_when(
+         Result %in% "Apartment list" ~ "Apartment List",
+         TRUE ~ Result
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Result = case_when(
+         Result %in% "Applicant grouping" ~ "Applicant Grouping",
+         TRUE ~ Result
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Result = case_when(
+         Result %in% c("Created by Lead2Lease (Unqualified)", 
+                       "Criminal History (Unqualified)",
+                       "Does not credit qualify (Unqualified)",
+                       "Does not income qualify (Unqualified)",
+                       "Found another apartment (Unqualified)",
+                       "Not moving (Unqualified)", "Personal (Unqualified)",
+                       "Pet (Unqualified)", "Screening process (Unqualified)",
+                       "Screening Process (Unqualified)",
+                       "Still looking / Undecided (Unqualified)",
+                       "Timeframe Change (Unqualified)", 
+                       "Too many occupants (Unqualified)", 
+                       "Unqualified (Unqualified)") ~ "Unqualified",
+         TRUE ~ Result
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Result = case_when(
+         Result %in% c("Desired floorplan not avail", "Desired floorplan not availabl",
+                       "Desired Floorplan not availabl") ~ "Desired Floorplan not avail"
+        ,TRUE ~ Result
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Result = case_when(
+         Result %in% c("Desired mone-in date not avail", 
+                       "Desired move in date not avail",
+                       "Desired move in date unavail",
+                       "Desired Move in date unavail",
+                       "Desired move-in date not avail",
+                       "Desired Move-in date not avail",
+                       "Desired Move-in Date not avail") ~ "Desired Move in date not avail"
+        ,TRUE ~ Result
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Result = case_when(
+         Result %in% "Found another apartment" ~ "Found another Apartment"
+        ,TRUE ~ Result
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Result = case_when(
+         Result %in% c("Future / 30 days out", "Future / 30 Days out",
+                       "Future / 30-days out", "Future/30 days out") ~ "Future / 30-Days Out"
+        ,TRUE ~ Result
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Result = case_when(
+         Result %in% "Leased an Apartment" ~ "Leased"
+        ,TRUE ~ Result
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Result = case_when(
+         Result %in% "Not moving" ~ "Not Moving"
+        ,TRUE ~ Result
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Result = case_when(
+         Result %in% "Promote Roommate" ~ "Roommate"
+        ,TRUE ~ Result
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Result = case_when(
+         Result %in% "Screening process" ~ "Screening Process"
+        ,TRUE ~ Result
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Result = case_when(
+         Result %in% c("Still looking / Undecided", "Still looking/ Undecided",
+                       "Still Looking/ Undecided", "Still Looking/Undecided ",
+                       "StillLooking/ Undecided", "Still Looking/Undecided") ~ "Still Looking / Undecided"
+        ,TRUE ~ Result
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Result = case_when(
+         Result %in% "Timeframe change" ~ "Timeframe Change"
+        ,TRUE ~ Result
+        )
+    )
+
+trafficReportList$Result[is.na(trafficReportList$Result)] <- "Unknown"
 
 
-    recode(Source, "A-Frame = A - Frame")
-
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Apartment list","Apartment List")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Applicant grouping","Applicant Grouping")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Desired floorplan not avail","Desired Floorplan not avail")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Desired floorplan not availabl","Desired Floorplan not avail")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Desired Floorplan not availabl","Desired Floorplan not avail")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Desired mone-in date not avail","Desired Move-in date not avail")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Desired move-in date not avail","Desired Move-in date not avail")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Desired Move-in Date not avail","Desired Move-in date not avail")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Desired move in date not avail","Desired Move-in date not avail")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Desired Move in date not avail","Desired Move-in date not avail")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Desired move in date unavail","Desired Move-in date not avail")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Desired Move in date unavail","Desired Move-in date not avail")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Found another apartment","Found another Apartment")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Found another apartment (Unqualified)","Found another Apartment")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Future / 30-days out","Future / 30-Days Out")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Future / 30 days out","Future / 30-Days Out")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Future / 30 Days out","Future / 30-Days Out")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Future/30 days out","Future / 30-Days Out")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Leased an Apartment","Leased")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Not moving","Not Moving")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Not moving (Unqualified)","Not Moving")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Personal (Unqualified)","Personal")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Promote Roommate","Roommate")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Screening process","Screening Process")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Screening process (Unqualified)","Screening Process")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Screening Process (Unqualified)","Screening Process")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Still looking / Undecided","Still Looking / Undecided")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Still looking / Undecided (Unqualified)","Still Looking / Undecided")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Still looking/ Undecided","Still Looking / Undecided")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Still Looking/ Undecided","Still Looking / Undecided")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Still Looking/Undecided","Still Looking / Undecided")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="StillLooking/ Undecided","Still Looking / Undecided")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Timeframe change","Timeframe Change")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Timeframe Change (Unqualified)","Timeframe Change")
-
-trafficReportList$Source <-
-replace(trafficReportList$Source,trafficReportList$Source=="Unqualified (Unqualified)","Unqualified")
+table(trafficReportList$Result)
 ```
 
 
@@ -275,8 +351,9 @@ library(lubridate)
 trafficReportList <- trafficReportList %>% 
   mutate("Status" = as.factor(Status)) %>% 
   mutate("Source" = as.factor(Source)) %>% 
-  mutate("Result/ Reason" = as.factor(`Result/ Reason`)) %>% 
-  rename("Result/Reason" = "Result/ Reason") %>% 
+  mutate("Result" = as.factor(Result)) 
+
+%>% 
   mutate("Event Date" = as.Date("Event Date", format = "%m/%d/%Y"))
 
 # this is resulting in NA's
@@ -285,17 +362,16 @@ trafficReportList <- trafficReportList %>%
 
 
 
-# filter 'Source' to top 10
+# filter 'Source' to top hits
 trafficReportList <- trafficReportList %>% 
-  filter(Source %in% c("Apartmentlist.com", "Craigslist", 'Driveby', 
-                       'Facebook', 'Google Plus', 'Property Website', 
-                       'Zillow', 'Tarragon Website', 'Referrals', 'Rent.com')) %>% 
-  filter(`Result/Reason` %in% c("Apartment List","Desired move-in date not avail", 
+  filter(Source %in% c("Apartmentlist.com", "CoStar Group", 'Drive-by/Signage', 
+                       'Google', 'Office', 'Property Website', 
+                       'RENTCAFE.com ILS', 'Zillow')) %>% 
+  filter(Result %in% c("Apartment List","Desired move-in date not avail", 
                                 "Duplicate", "Found another apartment",
-                                "Leased an Apartment", "Nothing", "Online Lead",
-                                "Personal", "Still looking / Undecided", "Took Application"))
-  
-
+                                "Leased", "Not Moving", "Nothing", "Online Lead",
+                                "Personal", "Still looking / Undecided", "Took Application", "Unknown"))
+    
 
 # recode Status vector
 trafficReportList <- trafficReportList %>% 
@@ -363,7 +439,7 @@ summary(trafficReportList)
 grid.arrange(
 
 # Source 
-ggplot(data = trafficReportList, mapping = aes(x = `Source`)) +
+ggplot(data = trafficReportList, mapping = aes(x = Source)) +
   geom_bar() + 
   coord_flip(), 
 
@@ -373,7 +449,7 @@ ggplot(data = trafficReportList, mapping = aes(x = Status)) +
   coord_flip(),
 
 # Result/ Reason
-ggplot(data = trafficReportList, mapping = aes(x = `Result/Reason`)) + 
+ggplot(data = trafficReportList, mapping = aes(x = Result)) + 
   geom_bar() + 
   coord_flip(),
 
@@ -400,21 +476,19 @@ trafficReportList %>%
 + top 10 Source: 
 
     + Apartmentlist.com
-    + Craigslist
-    + Driveby
-    + Facebook
-    + Google Plus
+    + CoStar Group
+    + Drive-by/Signage
+    + Google
+    + Office
     + Property Website
+    + RENTCafe.com ILS
     + Zillow
-    + Tarragon Website
-    + Refferrals
-    + Rent.com
 
 ```{r}
 # find highest factors in 'Source' and 'Result/Reason' 
 
 trafficReportList %>% 
-  tabyl(`Result/Reason`) %>% # creates table of counts
+  tabyl(Result) %>% # creates table of counts
   adorn_totals(where = c("row", "col")) %>%  # Total margins
   adorn_percentages(denominator = "all") %>%   # creates proportions
   adorn_rounding(2) 
@@ -430,11 +504,13 @@ trafficReportList %>%
     + Duplicate
     + Found another apartment
     + Leased an Apartment
+    + Not Moving
     + Nothing
     + Online Lead
     + Personal
     + Still looking / Undecided
     + Took Application
+    + Unknown
 
 
 
