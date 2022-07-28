@@ -353,17 +353,25 @@ trafficReportList <- trafficReportList %>%
   mutate("Source" = as.factor(Source)) %>% 
   mutate("Result" = as.factor(Result)) 
 
-%>% 
-  mutate("Event Date" = as.Date("Event Date", format = "%m/%d/%Y"))
 
 # this is resulting in NA's
 # Can't change 'Event Date' to date type. Need help on this.
 # as.Date("Event Date", format =  "%mm/%dd/%YYYY")
 
 
+# recode Status vector
+trafficReportList <- trafficReportList %>% 
+  mutate(num_status = case_when(trafficReportList$Status == 'Resident' ~ 1,
+                                trafficReportList$Status == 'Approved' ~ 1,
+                                trafficReportList$Status == 'Prospect' ~ 0, 
+                                trafficReportList$Status == 'Denied' ~ 0,
+                                trafficReportList$Status == 'CanceledGuest' ~ 0,
+                                trafficReportList$Status == 'Canceled Guest' ~ 0,
+                                trafficReportList$Status == 'Canceled' ~ 0,
+                                trafficReportList$Status == 'Applied' ~ 0)) 
 
 # filter 'Source' to top hits
-trafficReportList <- trafficReportList %>% 
+trafficReportList_top_source_result <- trafficReportList %>% 
   filter(Source %in% c("Apartmentlist.com", "CoStar Group", 'Drive-by/Signage', 
                        'Google', 'Office', 'Property Website', 
                        'RENTCAFE.com ILS', 'Zillow')) %>% 
@@ -371,23 +379,6 @@ trafficReportList <- trafficReportList %>%
                                 "Duplicate", "Found another apartment",
                                 "Leased", "Not Moving", "Nothing", "Online Lead",
                                 "Personal", "Still looking / Undecided", "Took Application", "Unknown"))
-    
-
-# recode Status vector
-trafficReportList <- trafficReportList %>% 
-  mutate(num_source = rename_wi(Source,
-                         "Resident" = 1,
-                         "Approved" = 1,
-                         "Prospect" = 0, 
-                         "Denied" = 0,
-                         "CanceledGuest" = 0,
-                         "Canceled Guest" = 0,
-                         "Canceled" = 0,
-                         "Applied" = 0)) 
-
-trafficReportList$Source <- recode(trafficReportList$Source, Resident = 1)
-
-
 
 ```
 
@@ -439,17 +430,17 @@ summary(trafficReportList)
 grid.arrange(
 
 # Source 
-ggplot(data = trafficReportList, mapping = aes(x = Source)) +
+ggplot(data = trafficReportList_top_source_result, mapping = aes(x = Source)) +
   geom_bar() + 
   coord_flip(), 
 
 # Status
-ggplot(data = trafficReportList, mapping = aes(x = Status)) +
+ggplot(data = trafficReportList_top_source_result, mapping = aes(x = Status)) +
   geom_bar() + 
   coord_flip(),
 
 # Result/ Reason
-ggplot(data = trafficReportList, mapping = aes(x = Result)) + 
+ggplot(data = trafficReportList_top_source_result, mapping = aes(x = Result)) + 
   geom_bar() + 
   coord_flip(),
 
@@ -570,18 +561,10 @@ Ha: Source impacts Status
 
 ```{r}
 
-reg <- trafficReportList %>% 
-  lm(Status ~ ., data = .)
+
+reg <- glm(formula = num_status ~ Source, data = trafficReportList)
 
 export_summs(reg)
-
-reg <- lm(formula = Status ~ Source, data = trafficReportList)
-
-reg <- glm(formula = Status ~ Source, data = trafficReportList)
-
-export_summs(reg)
-
-media_int_reg <- lm(formula = Website ~ Gender, data = media_int)
 ```
 
 
