@@ -14,7 +14,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r load libraries, include=FALSE}
 # load libraries
 library(readxl)  # to read in data
 library(tidyverse)  
@@ -40,7 +40,7 @@ setwd("/Users/lynnatran/Documents/MSBA/Capstone Project/Repository/5510-DTC/02_r
 + After verifying the raw data was formatted correctly, we read in the data
 
 Read-in Ledger Reports
-```{r}
+```{r read-in ledger reports}
 # read-in data
 
 ledger_balance <- read_excel("../02_raw_data/ledger/Ledger Beginning and Ending Balances.xlsx")
@@ -63,7 +63,7 @@ ledger_14 <- read_excel("../02_raw_data/ledger/CLEAN 54495 - REFERRAL COMMISSION
 
 
 Read-in Traffic Reports 
-```{r}
+```{r read-in traffic reports}
 property_list <- read_excel("../02_rawdata/PROPERTY LIST_clean.xlsx")
 
 aspen <- read_excel("../02_rawdata/traffic/ASPEN TRAFFIC REPORT_cleean.xlsx")
@@ -94,7 +94,7 @@ wacourtvillage  <- read_excel("../02_rawdata/traffic/WASHINGTON COURT VILLAGE SQ
 
 
 # Combine Ledger Reports 
-```{r}
+```{r combine ledger reports}
 # pipeline to join all reports for base_1 datasets
 ledger_base <- bind_rows(x = ledger_01, y = ledger_02)
 ledger_base <- bind_rows(x = ledger_base, y = ledger_03)
@@ -115,7 +115,7 @@ vtable(ledger_base)
 
 
 # Combine Traffic Reports 
-```{r}
+```{r combine traffic reports}
 # pipeline to join all reports for base_1 datasets
 trafficReportList <- bind_rows(aster, beryl, blacklake, boxcar, chinook, cobble,
                            dwell, edition, fourlakes, glacier1, glacier2, monticello,
@@ -126,9 +126,9 @@ summary(trafficReportList)
 vtable(trafficReportList)
 ```
 
-```{r}
+```{r rename Source}
 # rename Source
-library(dplyr)
+
 trafficReportList <- trafficReportList %>% 
     mutate(Source = case_when(
          Source %in% c("Apartment list", "Apartment List") ~ "Apartmentlist.com"
@@ -342,21 +342,10 @@ table(trafficReportList$Result)
 # need to convert datatypes 
 
 trafficReportList <- trafficReportList %>% 
-  recode(`Source`, Resident = 1)
-
-# Unit Type - Factor?
-
-library(lubridate)
-
-trafficReportList <- trafficReportList %>% 
   mutate("Status" = as.factor(Status)) %>% 
   mutate("Source" = as.factor(Source)) %>% 
-  mutate("Result" = as.factor(Result)) 
-
-
-# this is resulting in NA's
-# Can't change 'Event Date' to date type. Need help on this.
-# as.Date("Event Date", format =  "%mm/%dd/%YYYY")
+  mutate("Result" = as.factor(Result)) %>% 
+  mutate("Event Date" = as.Date("Event Date", format = "%mm/%dd/%YYYY"))
 
 
 # recode Status vector
@@ -370,8 +359,13 @@ trafficReportList <- trafficReportList %>%
                                 trafficReportList$Status == 'Canceled' ~ 0,
                                 trafficReportList$Status == 'Applied' ~ 0)) 
 
-# filter 'Source' to top hits
-trafficReportList_top_source_result <- trafficReportList %>% 
+
+
+```
+
+```{r filter Source and Result}
+# filter 'Source' and 'Result' to top hits
+trafficReportList_filter <- trafficReportList %>% 
   filter(Source %in% c("Apartmentlist.com", "CoStar Group", 'Drive-by/Signage', 
                        'Google', 'Office', 'Property Website', 
                        'RENTCAFE.com ILS', 'Zillow')) %>% 
@@ -379,16 +373,43 @@ trafficReportList_top_source_result <- trafficReportList %>%
                                 "Duplicate", "Found another apartment",
                                 "Leased", "Not Moving", "Nothing", "Online Lead",
                                 "Personal", "Still looking / Undecided", "Took Application", "Unknown"))
+```
+
+```{r add seasonality}
+
+trafficReportDates <- trafficReportList %>%
+ mutate('Year' = (substring(trafficReportList$'Event Date', 7, 11))) %>%
+ mutate('Month' = (substring(trafficReportList$'Event Date', 1, 2))) %>%
+ mutate('Season' = case_when(trafficReportDates$Month == '01' ~ 'Q1-Winter',
+                             trafficReportDates$Month == '02' ~ 'Q1-Winter',
+                             trafficReportDates$Month == '03' ~ 'Q1-Winter',
+                             trafficReportDates$Month == '04' ~ 'Q2-Spring',
+                             trafficReportDates$Month == '05' ~ 'Q2-Spring',
+                             trafficReportDates$Month == '06' ~ 'Q2-Spring',
+                             trafficReportDates$Month == '07' ~ 'Q3-Summer',
+                             trafficReportDates$Month == '08' ~ 'Q3-Summer',
+                             trafficReportDates$Month == '09' ~ 'Q3-Summer',
+                             trafficReportDates$Month == '10' ~ 'Q4-Fall',
+                             trafficReportDates$Month == '11' ~ 'Q4-Fall',
+                             trafficReportDates$Month == '12' ~ 'Q4-Fall'
+                             ))
 
 ```
 
 
+```{r join Property List with Traffic Report}
+
+trafficProperty <- trafficReportList %>%
+  left_join(property_list, by = c('Property Name' = 'Yardi Id Code'))
+
+```
 
 
 # Base EDA Step 1: Uni-variate non-graphical EDA
 ```{r}
 # top of the dataset and look each subset
 head(trafficReportList)
+summary(trafficReportList)
 ```
 
 + data appears to be tidy
@@ -396,6 +417,14 @@ head(trafficReportList)
     + data in each column is of the same variable type
     + no duplicate columns
     + each row is an observation for the sale of a specific home
+    
+**Comments**
+
++ can't tell much since all variables are strings
+
+**Questions**
+
++ How to convert string to date type
     
 ```{r}
 # check variable table
@@ -411,36 +440,25 @@ vtable(trafficReportList)
 + Status - Categorical
 + Result/ Reason - Categorical
 
-```{r}
-summary(trafficReportList)
-```
-
-**Comments**
-
-+ can't tell much since all variables are strings
-
-**Questions**
-
-+ How to convert string to date type
 
 # Base EDA Step 2: Uni-variate graphical EDA - Categorical
 
-```{r}
+```{r initial visuals}
 # Only use bar graphs (like histogram) because nothing like boxplot for categorical variables
 grid.arrange(
 
 # Source 
-ggplot(data = trafficReportList_top_source_result, mapping = aes(x = Source)) +
+ggplot(data = trafficReportList_filter, mapping = aes(x = Source)) +
   geom_bar() + 
   coord_flip(), 
 
 # Status
-ggplot(data = trafficReportList_top_source_result, mapping = aes(x = Status)) +
+ggplot(data = trafficReportList_filter, mapping = aes(x = Status)) +
   geom_bar() + 
   coord_flip(),
 
 # Result/ Reason
-ggplot(data = trafficReportList_top_source_result, mapping = aes(x = Result)) + 
+ggplot(data = trafficReportList_filter, mapping = aes(x = Result)) + 
   geom_bar() + 
   coord_flip(),
 
@@ -559,7 +577,7 @@ Ho: Source does not impact Status
 
 Ha: Source impacts Status
 
-```{r}
+```{r logistic regression}
 
 
 reg <- glm(formula = num_status ~ Source, data = trafficReportList)
