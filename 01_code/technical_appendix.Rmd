@@ -342,7 +342,7 @@ table(trafficReportList$Result)
 # need to convert datatypes 
 
 trafficReportList <- trafficReportList %>% 
-  recode(`Source`, Resident = 1)
+  recode("Source", Resident = 1)
 
 # Unit Type - Factor?
 
@@ -545,6 +545,98 @@ grid.arrange(
   geom_tile())
 ```
 
+
+
+# Marketing Metrics 
+
+## Grouping on the General Ledger data
+```{r Group by Source}
+##trying to group by (Person/Description or Remarks) on ledger base so I can get 
+
+##sqldf('SELECT DISTINCT [Person/Description] FROM ledger_base ')
+
+sourceList <- unique(trafficReportList$Source)
+
+
+```
+
+## Grouping on the Traffic reports data
+```{r Group by TrafficReportList - Source}
+
+trafficGroups <- trafficReportList %>% 
+  select(Source) %>%
+  group_by(Source) %>%
+  count(Source)
+
+trafficReportList %>% 
+  select(Source) %>%
+  tabyl(Source)
+
+summary(trafficGroups)
+```
+
+
+```{r Group by TrafficReportList - Source, Status}
+trafficReportList %>% 
+  select(Source, Status) %>%
+  tabyl(Source, Status)
+```
+
+```{r Group by TrafficReportList - YEAR}
+
+trafficReportDates <- trafficReportList %>%
+ mutate('Year' = (substring(trafficReportList$'Event Date', 7, 11))) %>%
+ mutate('Month' = (substring(trafficReportList$'Event Date', 1, 2))) 
+
+trafficReportDates <- trafficReportDates %>%
+ mutate('Season' = case_when(trafficReportDates$Month == '01' ~ 'Q1-Winter',
+                             trafficReportDates$Month == '02' ~ 'Q1-Winter',
+                             trafficReportDates$Month == '03' ~ 'Q1-Winter',
+                             trafficReportDates$Month == '04' ~ 'Q2-Spring',
+                             trafficReportDates$Month == '05' ~ 'Q2-Spring',
+                             trafficReportDates$Month == '06' ~ 'Q2-Spring',
+                             trafficReportDates$Month == '07' ~ 'Q3-Summer',
+                             trafficReportDates$Month == '08' ~ 'Q3-Summer',
+                             trafficReportDates$Month == '09' ~ 'Q3-Summer',
+                             trafficReportDates$Month == '10' ~ 'Q4-Fall',
+                             trafficReportDates$Month == '11' ~ 'Q4-Fall',
+                             trafficReportDates$Month == '12' ~ 'Q4-Fall'
+                             ))
+
+
+
+trafficReportDates %>%
+  select(Year) %>%
+  tabyl(Year)
+
+trafficReportDates %>%
+  select(Season) %>%
+  tabyl(Season)
+```
+
+
+## Joining Traffic Reports Data with Property List 
+```{r}
+
+trafficProperty <- trafficReportList %>%
+  left_join(property_list, by = c('Property Name' = 'Yardi Id Code'))
+
+```
+
+## Grouping on the Traffic Property data
+
+```{r Group by TrafficProperty}
+
+trafficProperty %>% 
+  select('PROPERTY TYPE:') %>%
+  tabyl('PROPERTY TYPE:')
+
+
+trafficProperty %>% 
+  select('COUNTY:') %>%
+  tabyl('COUNTY:')
+
+```
 
 
 # Regression Analysis
