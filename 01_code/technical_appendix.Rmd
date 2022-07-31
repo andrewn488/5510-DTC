@@ -765,7 +765,8 @@ TRSourceGrouping <- sqldf("
 costPerLead <- GLSourceGrouping %>%
   full_join(TRSourceGrouping, "Source") %>%
   mutate(costPerLead = DifferenceDebitCredit/countLead,
-         costPerResident = costPerLead * ResidentRate)
+         costPerResident = costPerLead * ResidentStatusCount,
+         ROITest = DifferenceDebitCredit - (costPerLead * ResidentStatusCount))
 
 ```
 
@@ -778,6 +779,9 @@ GLYearGrouping <- sqldf("
       from ledger_baseDates
       group by Source, Year
       ")
+
+##get a full forecast data for 2022 since we only have 6 months of data now. Mutiply it by 2 if year = 2022
+
 
 TRYearGrouping <- sqldf("
      select *, (case when sq.ResidentStatusCount = 0 then 0
@@ -796,8 +800,11 @@ TRYearGrouping <- sqldf("
 
 costPerYear <- GLYearGrouping %>%
   full_join(TRYearGrouping, c("Source", "Year")) %>%
-  mutate(costPerLeadYear = DifferenceDebitCredit/countLead,
-  costPerResidentYear = costPerLeadYear* ResidentRate)
+  mutate(costPerLead = DifferenceDebitCredit/countLead,
+         costPerResident = costPerLead * ResidentStatusCount,
+         ROITest = DifferenceDebitCredit - (costPerLead * ResidentStatusCount))
+
+
 
 
 ```
@@ -829,8 +836,9 @@ TRSeasonGrouping <- sqldf("
 
 costPerSeason <- GLSeasonGrouping %>%
   full_join(TRSeasonGrouping, c("Source", "Season")) %>%
-  mutate(costPerLeadSeason = DifferenceDebitCredit/countLead,
-  costPerResidentSeason = costPerLeadSeason* ResidentRate)
+  mutate(costPerLead = DifferenceDebitCredit/countLead,
+         costPerResident = costPerLead * ResidentStatusCount,
+         ROITest = DifferenceDebitCredit - (costPerLead * ResidentStatusCount))
 
 
 ```
@@ -867,8 +875,9 @@ TRPropertyTypeGrouping <- sqldf("
 
 costPerPropertyType <- GLPropertyTypeGrouping %>%
   full_join(TRPropertyTypeGrouping, "PropertyType") %>%
-  mutate(costPerLeadProperty = DifferenceDebitCredit/countLeadPropertyType,
-  costPerPropertyType = costPerLeadProperty * ResidentRate)
+    mutate(costPerLead = DifferenceDebitCredit/countLeadPropertyType,
+         costPerResident = costPerLead * ResidentStatusCount,
+         ROITest = DifferenceDebitCredit - (costPerLead * ResidentStatusCount))
 
 
 
@@ -902,8 +911,9 @@ TRCountyGrouping <- sqldf("
 
 costPerCounty <- GLCountyGrouping %>%
   full_join(TRCountyGrouping, "County") %>%
-  mutate(costPerLeadCounty = DifferenceDebitCredit/countLeadCounty,
-  costPerCounty = costPerLeadCounty * ResidentRate)
+  mutate(costPerLead = DifferenceDebitCredit/countLeadCounty,
+         costPerResident = costPerLead * ResidentStatusCount,
+         ROITest = DifferenceDebitCredit - (costPerLead * ResidentStatusCount))
 ```
 
 # Regression Analysis
