@@ -112,7 +112,7 @@ mutate(ledgerAccount = "Referral Comissions")
 
 
 Read-in Traffic Reports 
-```{r}
+```{r  Read in Traffic Reports}
 property_list <- read_excel("../02_rawdata/PROPERTY LIST_clean.xlsx")
 
 aspen <- read_excel("../02_rawdata/traffic/ASPEN TRAFFIC REPORT_cleean.xlsx")
@@ -600,19 +600,57 @@ grid.arrange(
 
 
 ## Grouping on the General Ledger data
-```{r Group by Source}
-##trying to group by (Person/Description or Remarks) on ledger base so I can get 
+```{r Read in ledger_base with Source}
+##
 
-##sqldf('SELECT DISTINCT [Person/Description] FROM ledger_base ')
-
-write_xlsx(ledger_base, "../02_raw_data/ledger_base")
+write_xlsx(ledger_base, "../02_raw_data/LedgerSources/ledger_base")
 
 
 sourceList <- unique(trafficReportList$Source)
+
 source_df <- data_frame(sourceList)
-write_xlsx(source_df, "../02_raw_data/sourceList")
+write_xlsx(source_df, "../02_raw_data/LedgerSources/sourceList")
+
+ledger_baseSource <- read.csv("../02_raw_data/LedgerSources/ledger_base_withsourcesCSV.csv")
 
 ```
+
+
+
+```{r Group by ledger_baseSource}
+
+ledger_baseSource %>% 
+  select(Source) %>%
+  tabyl(Source)
+
+
+```
+```{r}
+ledger_baseDates <- ledger_baseSource
+
+ledger_baseDates <- ledger_baseDates %>%
+ mutate('Year' = (substring(ledger_baseDates$'Date', 0, 4))) %>%
+ mutate('Month' = (substring(ledger_baseDates$'Date', 6, 7))) ##
+
+
+ledger_baseDates <- ledger_baseDates %>%
+ mutate('Season' = case_when(ledger_baseDates$Month == '01' ~ 'Q1-Winter',
+                             ledger_baseDates$Month == '02' ~ 'Q1-Winter',
+                             ledger_baseDates$Month == '03' ~ 'Q1-Winter',
+                             ledger_baseDates$Month == '04' ~ 'Q2-Spring',
+                             ledger_baseDates$Month == '05' ~ 'Q2-Spring',
+                             ledger_baseDates$Month == '06' ~ 'Q2-Spring',
+                             ledger_baseDates$Month == '07' ~ 'Q3-Summer',
+                             ledger_baseDates$Month == '08' ~ 'Q3-Summer',
+                             ledger_baseDates$Month == '09' ~ 'Q3-Summer',
+                             ledger_baseDates$Month == '10' ~ 'Q4-Fall',
+                             ledger_baseDates$Month == '11' ~ 'Q4-Fall',
+                             ledger_baseDates$Month == '12' ~ 'Q4-Fall'
+                             ))
+
+
+```
+
 
 ## Grouping on the Traffic reports data
 ```{r Group by TrafficReportList - Source}
@@ -691,7 +729,182 @@ trafficProperty %>%
   tabyl('COUNTY:')
 
 ```
+# Cost per Lead Analysis
 
+```{r Grouping by Source GL and Traffic Report}
+
+library(sqldf)
+
+GLSourceGrouping <- sqldf("
+      select Source, count(Source) countSource,
+      sum(Debit) sumDebit, sum(Credit) sumCredit,
+      (sum(Debit) - sum(Credit)) DifferenceDebitCredit
+      from ledger_baseSource
+      group by Source
+      ")
+
+TRSourceGrouping <- sqldf("
+     select *, (case when sq.ResidentStatusCount = 0 then 0
+                    else cast(sq.ResidentStatusCount as float)/
+                         cast(sq.CountLead as float)
+                    end
+                ) ResidentRate
+     from 
+        (select Source, count(Source) countLead,
+          (select count(trp2.num_status) 
+          from trafficReportList trp2
+          where trp2.num_status = 1 and trp2.Source = trp1.Source )                 ResidentStatusCount
+        from trafficReportList trp1
+        group by Source) sq
+      ")
+```
+
+```{r Getting Cost per Lead}
+
+
+costPerLead <- GLSourceGrouping %>%
+  full_join(TRSourceGrouping, "Source") %>%
+  mutate(costPerLead = DifferenceDebitCredit/countLead,
+         costPerResident = costPerLead * ResidentRate)
+
+```
+
+```{r Grouping by Year}
+
+GLYearGrouping <- sqldf("
+      select Source, Year, count(Source) countSource,
+      sum(Debit) sumDebit, sum(Credit) sumCredit,
+      (sum(Debit) - sum(Credit)) DifferenceDebitCredit
+      from ledger_baseDates
+      group by Source, Year
+      ")
+
+TRYearGrouping <- sqldf("
+     select *, (case when sq.ResidentStatusCount = 0 then 0
+                    else cast(sq.ResidentStatusCount as float)/
+                         cast(sq.CountLead as float)
+                    end
+                ) ResidentRate
+     from 
+        (select Source, Year, count(Source) countLead,
+          (select count(trp2.num_status) 
+          from trafficReportDates trp2
+          where trp2.num_status = 1 and trp2.Source = trp1.Source and trp2.Year =                 trp1.Year )                 ResidentStatusCount
+        from trafficReportDates trp1
+        group by Source, Year) sq
+      ")
+
+costPerYear <- GLYearGrouping %>%
+  full_join(TRYearGrouping, c("Source", "Year")) %>%
+  mutate(costPerLeadYear = DifferenceDebitCredit/countLead,
+  costPerResidentYear = costPerLeadYear* ResidentRate)
+
+
+```
+
+```{r Grouping by Season}
+
+GLSeasonGrouping <- sqldf("
+      select Source, Season, count(Source) countSource,
+      sum(Debit) sumDebit, sum(Credit) sumCredit,
+      (sum(Debit) - sum(Credit)) DifferenceDebitCredit
+      from ledger_baseDates
+      group by Source, Season
+      ")
+
+TRSeasonGrouping <- sqldf("
+     select *, (case when sq.ResidentStatusCount = 0 then 0
+                    else cast(sq.ResidentStatusCount as float)/
+                         cast(sq.CountLead as float)
+                    end
+                ) ResidentRate
+     from 
+        (select Source, Season, count(Source) countLead,
+          (select count(trp2.num_status) 
+          from trafficReportDates trp2
+          where trp2.num_status = 1 and trp2.Source = trp1.Source and trp2.Season =                 trp1.Season )                 ResidentStatusCount
+        from trafficReportDates trp1
+        group by Source, Season) sq
+      ")
+
+costPerSeason <- GLSeasonGrouping %>%
+  full_join(TRSeasonGrouping, c("Source", "Season")) %>%
+  mutate(costPerLeadSeason = DifferenceDebitCredit/countLead,
+  costPerResidentSeason = costPerLeadSeason* ResidentRate)
+
+
+```
+
+
+```{r Grouping by Property Type }
+
+GLPropertyType <- left_join(ledger_base, property_list, by = c("Property"= "Yardi Id Code"))
+                          
+
+GLPropertyTypeGrouping <- sqldf("
+      select [Property Type:] PropertyType ,count([Property Type:]) countPropertyType,
+      sum(Debit) sumDebit, sum(Credit) sumCredit,
+      (sum(Debit) - sum(Credit)) DifferenceDebitCredit
+      from GLPropertyType
+      group by [Property Type:]
+      ")
+
+TRPropertyTypeGrouping <- sqldf("
+     select *, (case when sq.ResidentStatusCount = 0 then 0
+                    else cast(sq.ResidentStatusCount as float)/
+                         cast(sq.countLeadPropertyType as float)
+                    end
+                ) ResidentRate
+     from 
+        (select [Property Type:] PropertyType, count([Property Type:]) 
+            countLeadPropertyType,
+          (select count(tp2.num_status) 
+          from trafficProperty tp2
+          where tp2.num_status = 1 and tp2.[Property Type:] = tp1.[Property Type:])                 ResidentStatusCount
+        from trafficProperty tp1
+        group by [Property Type:]) sq
+      ")
+
+costPerPropertyType <- GLPropertyTypeGrouping %>%
+  full_join(TRPropertyTypeGrouping, "PropertyType") %>%
+  mutate(costPerLeadProperty = DifferenceDebitCredit/countLeadPropertyType,
+  costPerPropertyType = costPerLeadProperty * ResidentRate)
+
+
+
+```
+
+```{r Grouping by County }
+                          
+GLCountyGrouping <- sqldf("
+      select [County:] County ,count([County:]) countCounty,
+      sum(Debit) sumDebit, sum(Credit) sumCredit,
+      (sum(Debit) - sum(Credit)) DifferenceDebitCredit
+      from GLPropertyType
+      group by [County:]
+      ")
+
+TRCountyGrouping <- sqldf("
+     select *, (case when sq.ResidentStatusCount = 0 then 0
+                    else cast(sq.ResidentStatusCount as float)/
+                         cast(sq.countLeadCounty as float)
+                    end
+                ) ResidentRate
+     from 
+        (select [County:] County , count([County:]) countLeadCounty,
+          (select count(tp2.num_status) 
+          from trafficProperty tp2
+          where tp2.num_status = 1 and tp2.[County:] = tp1.[County:])                 ResidentStatusCount
+        from trafficProperty tp1
+        group by [County:]) sq
+      ")
+
+
+costPerCounty <- GLCountyGrouping %>%
+  full_join(TRCountyGrouping, "County") %>%
+  mutate(costPerLeadCounty = DifferenceDebitCredit/countLeadCounty,
+  costPerCounty = costPerLeadCounty * ResidentRate)
+```
 
 # Regression Analysis
 
