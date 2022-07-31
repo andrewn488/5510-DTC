@@ -359,6 +359,17 @@ trafficReportList <- trafficReportList %>%
                                 trafficReportList$Status == 'Canceled' ~ 0,
                                 trafficReportList$Status == 'Applied' ~ 0)) 
 
+# recode Result vector
+trafficReportList <- trafficReportList %>% 
+  mutate(num_result = case_when(trafficReportList$Status == 'Resident' ~ 1,
+                                trafficReportList$Status == 'Approved' ~ 1,
+                                trafficReportList$Status == 'Prospect' ~ 0, 
+                                trafficReportList$Status == 'Denied' ~ 0,
+                                trafficReportList$Status == 'CanceledGuest' ~ 0,
+                                trafficReportList$Status == 'Canceled Guest' ~ 0,
+                                trafficReportList$Status == 'Canceled' ~ 0,
+                                trafficReportList$Status == 'Applied' ~ 0)) 
+
 
 
 ```
@@ -580,9 +591,13 @@ Ha: Source impacts Status
 ```{r logistic regression}
 
 
-reg <- glm(formula = num_status ~ Source, data = trafficReportList)
+reg_source <- glm(formula = num_status ~ Source, data = trafficReportList)
+# reg_norm <- glm(formula = num_status ~ Source, data = trafficReportList_norm)
 
-export_summs(reg)
+
+reg_spend <- lm(formula = , data = ledger_base)
+
+export_summs(reg_source)
 ```
 
 **Comments**
@@ -592,7 +607,17 @@ export_summs(reg)
     + Promote Roomate (0.62) is most positively significant
     + Transfer Unit (0.51) 2nd most positive
     + Majority are negatively associated - is this model correct?
-    + Perhaps do a filter on Source and throw in an interaction variable
+    + Perhaps do a filter on Source and throw in an interaction 
+    
+```{r}
+# normalize trafficReportList
+
+trafficReportList_norm <- trafficReportList %>% 
+  select(num_status)
+
+trafficReportList_norm <- scale(trafficReportList_norm)
+```
+    
 
 + pearson correlation
 + add in a correlation matrix just to make it look fancy
