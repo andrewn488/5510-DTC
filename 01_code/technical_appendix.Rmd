@@ -585,7 +585,14 @@ reg <- glm(formula = num_status ~ Source, data = trafficReportList)
 export_summs(reg)
 ```
 
+**Comments**
 
++ 7/30/2022 Interpretation: 
+
+    + Promote Roomate (0.62) is most positively significant
+    + Transfer Unit (0.51) 2nd most positive
+    + Majority are negatively associated - is this model correct?
+    + Perhaps do a filter on Source and throw in an interaction variable
 
 + pearson correlation
 + add in a correlation matrix just to make it look fancy
