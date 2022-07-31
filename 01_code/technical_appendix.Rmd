@@ -24,6 +24,9 @@ library(dplyr)
 library(lubridate) # to cast date-time datatypes
 library(gridExtra)  # for grid arrange
 library(janitor)  # for tabyl
+
+library(writexl)
+
 ```
 
 
@@ -58,6 +61,52 @@ ledger_11 <- read_excel("../02_raw_data/ledger/CLEAN 54482 - SEO SERVICES.xlsx")
 ledger_12 <- read_excel("../02_raw_data/ledger/CLEAN 54485 - SIGN POSTERS OTHER.xlsx")
 ledger_13 <- read_excel("../02_raw_data/ledger/CLEAN 54490 - MODEL EXPENSE.xlsx")
 ledger_14 <- read_excel("../02_raw_data/ledger/CLEAN 54495 - REFERRAL COMMISSIONS.xlsx")
+
+```
+
+```{r Adding LedgerAccount to Ledger tables}
+
+ledger_01 <- ledger_01 %>%
+  mutate(ledgerAccount = "Mailings")
+
+ledger_02 <- ledger_02 %>%
+  mutate(ledgerAccount = "Marketing")
+  
+ledger_03 <- ledger_03 %>%
+  mutate(ledgerAccount = "Website Expense") 
+  
+ledger_04 <- ledger_04 %>%
+mutate(ledgerAccount = "Branding Expense")
+
+ledger_05 <- ledger_05 %>%
+mutate(ledgerAccount = "Public Relations")
+
+ledger_06 <- ledger_06 %>%
+mutate(ledgerAccount = "Tenant Relations")
+
+ledger_07 <- ledger_07 %>%
+mutate(ledgerAccount = "Brochure")
+
+ledger_08 <- ledger_08 %>%
+mutate(ledgerAccount = "Dues Memberships")
+
+ledger_09 <- ledger_09 %>%
+mutate(ledgerAccount = "Internet Advertising")
+
+ledger_10 <- ledger_10 %>%
+mutate(ledgerAccount = "Internet Listing")
+
+ledger_11 <- ledger_11 %>%
+mutate(ledgerAccount = "SEO Services")
+
+ledger_12 <- ledger_12 %>%
+mutate(ledgerAccount = "Signs Posters")
+
+ledger_13 <- ledger_13 %>%
+mutate(ledgerAccount = "Model Expense")
+
+ledger_14 <- ledger_14 %>%
+mutate(ledgerAccount = "Referral Comissions")
 
 ```
 
@@ -549,14 +598,19 @@ grid.arrange(
 
 # Marketing Metrics 
 
+
 ## Grouping on the General Ledger data
 ```{r Group by Source}
 ##trying to group by (Person/Description or Remarks) on ledger base so I can get 
 
 ##sqldf('SELECT DISTINCT [Person/Description] FROM ledger_base ')
 
-sourceList <- unique(trafficReportList$Source)
+write_xlsx(ledger_base, "../02_raw_data/ledger_base")
 
+
+sourceList <- unique(trafficReportList$Source)
+source_df <- data_frame(sourceList)
+write_xlsx(source_df, "../02_raw_data/sourceList")
 
 ```
 
