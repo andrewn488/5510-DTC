@@ -387,25 +387,10 @@ table(trafficReportList$Result)
 # Wrangle data
 
 ```{r}
-# all data in trafficReportList string type
-# need to convert datatypes 
-
-trafficReportList <- trafficReportList %>% 
-  recode("Source", Resident = 1)
-
-# Unit Type - Factor?
-
-library(lubridate)
-
 trafficReportList <- trafficReportList %>% 
   mutate("Status" = as.factor(Status)) %>% 
   mutate("Source" = as.factor(Source)) %>% 
   mutate("Result" = as.factor(Result)) 
-
-
-# this is resulting in NA's
-# Can't change 'Event Date' to date type. Need help on this.
-# as.Date("Event Date", format =  "%mm/%dd/%YYYY")
 
 
 # recode Status vector
@@ -597,7 +582,6 @@ grid.arrange(
 
 
 # Marketing Metrics 
-
 
 ## Grouping on the General Ledger data
 ```{r Read in ledger_base with Source}
@@ -928,12 +912,23 @@ Ho: Source does not impact Status
 
 Ha: Source impacts Status
 
+```{r logistic regression}
+
+
+reg_source <- glm(formula = num_status ~ Source, data = trafficReportList)
+# reg_norm <- glm(formula = num_status ~ Source, data = trafficReportList_norm)
+
+
+reg_spend <- lm(formula = , data = ledger_base)
+
+export_summs(reg_source)
+```
+
+
+
 ```{r}
+# regression on lm(dependent ~ independent, data = costPerLead)
 
-
-reg <- glm(formula = num_status ~ Source, data = trafficReportList)
-
-export_summs(reg)
 ```
 
 
