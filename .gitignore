@@ -38,7 +38,6 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 .DS_Store
-*.csv
 <<<<<<< HEAD
 *.html
 =======
