@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 # Load Libraries
-```{r , hide =TRUE }
+```{r , hide=TRUE, include=FALSE}
 
 library(readxl)  # to read in data
 library(tidyverse)  
@@ -375,15 +375,6 @@ table(trafficReportList$Result)
 # Wrangle data
 
 ```{r}
-# all data in trafficReportList string type
-# need to convert datatypes 
-
-# trafficReportList <- trafficReportList %>% 
-#   recode("Source", Resident = 1)
-
-# Unit Type - Factor?
-
-
 trafficReportList <- trafficReportList %>% 
   mutate("Status" = as.factor(Status)) %>% 
   mutate("Source" = as.factor(Source)) %>% 
@@ -1007,8 +998,8 @@ export_summs(reg_county_source)
 
 
 ```{r}
-
-reg_location <- glm(formula = num_status ~ `COUNTY:` * Source, data = trafficProperty)
+# regression by location (rural / suburban / urban)
+reg_location <- glm(formula = num_status ~ `LOCATION:` * Source, data = trafficProperty)
 
 export_summs(reg_location)
 
