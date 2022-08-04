@@ -957,24 +957,62 @@ costPerLocation <- GLLocationGrouping %>%
 
 # Regression Analysis
 
+What drives Status?
 Ho: some activity does NOT impact the variable of interest
-
 Ha: some activity DOES impact the variable of interest
 
 Variable of interest <- Status
 
 Ho: Source does not impact Status
-
 Ha: Source impacts Status
+
+What drives Spending?
+Ho: Total Spending does not impact Status
+Ha: Total Spending impacts Status
+
+## Join dataframes
+
+```{r}
+join_df <- trafficReportList %>% 
+  right_join(GLSourceGrouping) %>% 
+  drop_na()
+```
+
+
+```{r logistic regression}
+
+
+reg_source <- glm(formula = num_status ~ Source, data = trafficReportList)
+# reg_norm <- glm(formula = num_status ~ Source, data = trafficReportList_norm)
+
+export_summs(reg_source)
+
+```
+
++ Independent variable: num_status (if they signed a lease)
++ Dependent variables: total spending (overall spending, by source, etc.)
+
+```{r}
+reg_county <- glm(formula = num_status ~ `COUNTY:`, data = trafficProperty)
+
+export_summs(reg_county)
+```
+
+```{r}
+reg_county_source <- glm(formula = num_status ~ `COUNTY:` * Source, data = trafficProperty)
+
+export_summs(reg_county_source)
+```
+
+
 
 ```{r}
 
+reg_location <- glm(formula = num_status ~ `COUNTY:` * Source, data = trafficProperty)
 
-reg <- glm(formula = num_status ~ Source, data = trafficReportList)
+export_summs(reg_location)
 
-export_summs(reg)
 ```
-
 
 
 + pearson correlation
