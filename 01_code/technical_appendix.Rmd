@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 # Load Libraries
-```{r , hide =TRUE }
+```{r , hide=TRUE, include=FALSE}
 
 library(readxl)  # to read in data
 library(tidyverse)  
@@ -375,15 +375,6 @@ table(trafficReportList$Result)
 # Wrangle data
 
 ```{r}
-# all data in trafficReportList string type
-# need to convert datatypes 
-
-# trafficReportList <- trafficReportList %>% 
-#   recode("Source", Resident = 1)
-
-# Unit Type - Factor?
-
-
 trafficReportList <- trafficReportList %>% 
   mutate("Status" = as.factor(Status)) %>% 
   mutate("Source" = as.factor(Source)) %>% 
@@ -957,24 +948,62 @@ costPerLocation <- GLLocationGrouping %>%
 
 # Regression Analysis
 
+What drives Status?
 Ho: some activity does NOT impact the variable of interest
-
 Ha: some activity DOES impact the variable of interest
 
 Variable of interest <- Status
 
 Ho: Source does not impact Status
-
 Ha: Source impacts Status
 
+What drives Spending?
+Ho: Total Spending does not impact Status
+Ha: Total Spending impacts Status
+
+## Join dataframes
+
 ```{r}
-
-
-reg <- glm(formula = num_status ~ Source, data = trafficReportList)
-
-export_summs(reg)
+join_df <- trafficReportList %>% 
+  right_join(GLSourceGrouping) %>% 
+  drop_na()
 ```
 
+
+```{r logistic regression}
+
+
+reg_source <- glm(formula = num_status ~ Source, data = trafficReportList)
+# reg_norm <- glm(formula = num_status ~ Source, data = trafficReportList_norm)
+
+export_summs(reg_source)
+
+```
+
++ Independent variable: num_status (if they signed a lease)
++ Dependent variables: total spending (overall spending, by source, etc.)
+
+```{r}
+reg_county <- glm(formula = num_status ~ `COUNTY:`, data = trafficProperty)
+
+export_summs(reg_county)
+```
+
+```{r}
+reg_county_source <- glm(formula = num_status ~ `COUNTY:` * Source, data = trafficProperty)
+
+export_summs(reg_county_source)
+```
+
+
+
+```{r}
+# regression by location (rural / suburban / urban)
+reg_location <- glm(formula = num_status ~ `LOCATION:` * Source, data = trafficProperty)
+
+export_summs(reg_location)
+
+```
 
 
 + pearson correlation
