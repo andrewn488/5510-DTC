@@ -654,8 +654,8 @@ ledgerSourceGroups <- ledger_baseSource %>%
   select(Source) %>%
   tabyl(Source)
 
-summary(ledgerSourceGroups)
-
+##summary(ledgerSourceGroups)
+kable(ledgerSourceGroups)
 ```
 
 ## Grouping on the Traffic reports by source
@@ -750,9 +750,8 @@ TRSourceGrouping <- sqldf("
 costPerLead <- GLSourceGrouping %>%
   full_join(TRSourceGrouping, "Source") %>%
   mutate(costPerLead = DifferenceDebitCredit/countLead,
-         costPerResident = costPerLead * ResidentStatusCount,
-         ROI = DifferenceDebitCredit - (costPerLead * ResidentStatusCount))
-
+         costForAllResidents = costPerLead * ResidentStatusCount,
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
 ```
 
 ## Getting Cost per Lead by Year
@@ -788,8 +787,8 @@ TRYearGrouping <- sqldf("
 costPerYear <- GLYearGrouping %>%
   full_join(TRYearGrouping, c("Source", "Year")) %>%
   mutate(costPerLead = DifferenceDebitCredit/countLead,
-         costPerResident = costPerLead * ResidentStatusCount,
-         ROI = DifferenceDebitCredit - (costPerLead * ResidentStatusCount))
+         costForAllResidents = costPerLead * ResidentStatusCount,
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
 
 
 
@@ -826,8 +825,8 @@ TRSeasonGrouping <- sqldf("
 costPerSeason <- GLSeasonGrouping %>%
   full_join(TRSeasonGrouping, c("Source", "Season")) %>%
   mutate(costPerLead = DifferenceDebitCredit/countLead,
-         costPerResident = costPerLead * ResidentStatusCount,
-         ROI = DifferenceDebitCredit - (costPerLead * ResidentStatusCount))
+         costForAllResidents = costPerLead * ResidentStatusCount,
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
 
 
 ```
@@ -846,6 +845,7 @@ GLPropertyTypeGrouping <- sqldf("
       from GLPropertyType
       group by [Property Type:]
       ")
+
 
 TRPropertyTypeGrouping <- sqldf("
      select *, (case when sq.ResidentStatusCount = 0 then 0
@@ -866,10 +866,8 @@ TRPropertyTypeGrouping <- sqldf("
 costPerPropertyType <- GLPropertyTypeGrouping %>%
   full_join(TRPropertyTypeGrouping, "PropertyType") %>%
     mutate(costPerLead = DifferenceDebitCredit/countLeadPropertyType,
-         costPerResident = costPerLead * ResidentStatusCount,
-         ROI = DifferenceDebitCredit - (costPerLead * ResidentStatusCount))
-
-
+         costForAllResidents = costPerLead * ResidentStatusCount,
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
 
 ```
 
@@ -884,6 +882,8 @@ GLCountyGrouping <- sqldf("
       from GLPropertyType
       group by [County:]
       ")
+
+
 
 TRCountyGrouping <- sqldf("
      select *, (case when sq.ResidentStatusCount = 0 then 0
@@ -904,9 +904,13 @@ TRCountyGrouping <- sqldf("
 costPerCounty <- GLCountyGrouping %>%
   full_join(TRCountyGrouping, "County") %>%
   mutate(costPerLead = DifferenceDebitCredit/countLeadCounty,
-         costPerResident = costPerLead * ResidentStatusCount,
-         ROI = DifferenceDebitCredit - (costPerLead * ResidentStatusCount))
+         costForAllResidents = costPerLead * ResidentStatusCount,
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
+
+kable(costPerCounty)
 ```
+
+
 
 ## Getting Cost per Lead by Location Type
 
@@ -939,9 +943,17 @@ TRLocationGrouping <- sqldf("
 costPerLocation <- GLLocationGrouping %>%
   full_join(TRLocationGrouping, "Location") %>%
   mutate(costPerLead = DifferenceDebitCredit/countLeadLocation,
-         costPerResident = costPerLead * ResidentStatusCount,
-         ROI = DifferenceDebitCredit - (costPerLead * ResidentStatusCount))
+         costForAllResidents = costPerLead * ResidentStatusCount,
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
 ```
+
+## Getting cost per lead by location type and source 
+
+```{r}
+
+```
+
+
 
 # Regression Analysis
 
