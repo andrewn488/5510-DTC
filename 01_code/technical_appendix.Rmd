@@ -14,8 +14,10 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
-# load libraries
+
+# Load Libraries
+```{r , hide =TRUE }
+
 library(readxl)  # to read in data
 library(tidyverse)  
 library(jtools)  # for export_summs
@@ -24,8 +26,11 @@ library(dplyr)
 library(lubridate) # to cast date-time datatypes
 library(gridExtra)  # for grid arrange
 library(janitor)  # for tabyl
-
 library(writexl)
+library(lubridate)
+library(sqldf)
+
+
 
 ```
 
@@ -33,18 +38,16 @@ library(writexl)
 ```{r Directory for Lynna}
 setwd("/Users/lynnatran/Documents/MSBA/Capstone Project/Repository/5510-DTC/02_rawdata")
 
-
 ```
 
-# Read-in the data
+# Load data
 
 + Data pre-processing occurred in excel using manual formatting
 + No complex wrangling anticipated
 + After verifying the raw data was formatted correctly, we read in the data
 
-Read-in Ledger Reports
-```{r}
-# read-in data
+## Read-in Ledger Reports
+```{r Read in Ledger reports}
 
 ledger_balance <- read_excel("../02_raw_data/ledger/Ledger Beginning and Ending Balances.xlsx")
 ledger_01 <- read_excel("../02_raw_data/ledger/CLEAN  54445 - MAILINGS AND NEWSLETTER.xlsx")
@@ -66,55 +69,28 @@ ledger_14 <- read_excel("../02_raw_data/ledger/CLEAN 54495 - REFERRAL COMMISSION
 
 ```{r Adding LedgerAccount to Ledger tables}
 
-ledger_01 <- ledger_01 %>%
-  mutate(ledgerAccount = "Mailings")
-
-ledger_02 <- ledger_02 %>%
-  mutate(ledgerAccount = "Marketing")
-  
-ledger_03 <- ledger_03 %>%
-  mutate(ledgerAccount = "Website Expense") 
-  
-ledger_04 <- ledger_04 %>%
-mutate(ledgerAccount = "Branding Expense")
-
-ledger_05 <- ledger_05 %>%
-mutate(ledgerAccount = "Public Relations")
-
-ledger_06 <- ledger_06 %>%
-mutate(ledgerAccount = "Tenant Relations")
-
-ledger_07 <- ledger_07 %>%
-mutate(ledgerAccount = "Brochure")
-
-ledger_08 <- ledger_08 %>%
-mutate(ledgerAccount = "Dues Memberships")
-
-ledger_09 <- ledger_09 %>%
-mutate(ledgerAccount = "Internet Advertising")
-
-ledger_10 <- ledger_10 %>%
-mutate(ledgerAccount = "Internet Listing")
-
-ledger_11 <- ledger_11 %>%
-mutate(ledgerAccount = "SEO Services")
-
-ledger_12 <- ledger_12 %>%
-mutate(ledgerAccount = "Signs Posters")
-
-ledger_13 <- ledger_13 %>%
-mutate(ledgerAccount = "Model Expense")
-
-ledger_14 <- ledger_14 %>%
-mutate(ledgerAccount = "Referral Comissions")
+ledger_01 <- ledger_01 %>% mutate(ledgerAccount = "Mailings")
+ledger_02 <- ledger_02 %>% mutate(ledgerAccount = "Marketing")
+ledger_03 <- ledger_03 %>% mutate(ledgerAccount = "Website Expense") 
+ledger_04 <- ledger_04 %>% mutate(ledgerAccount = "Branding Expense")
+ledger_05 <- ledger_05 %>% mutate(ledgerAccount = "Public Relations")
+ledger_06 <- ledger_06 %>% mutate(ledgerAccount = "Tenant Relations")
+ledger_07 <- ledger_07 %>% mutate(ledgerAccount = "Brochure")
+ledger_08 <- ledger_08 %>% mutate(ledgerAccount = "Dues Memberships")
+ledger_09 <- ledger_09 %>% mutate(ledgerAccount = "Internet Advertising")
+ledger_10 <- ledger_10 %>% mutate(ledgerAccount = "Internet Listing")
+ledger_11 <- ledger_11 %>% mutate(ledgerAccount = "SEO Services")
+ledger_12 <- ledger_12 %>% mutate(ledgerAccount = "Signs Posters")
+ledger_13 <- ledger_13 %>% mutate(ledgerAccount = "Model Expense")
+ledger_14 <- ledger_14 %>% mutate(ledgerAccount = "Referral Comissions")
 
 ```
 
 
-Read-in Traffic Reports 
+## Read-in Traffic Reports 
 ```{r  Read in Traffic Reports}
-property_list <- read_excel("../02_rawdata/PROPERTY LIST_clean.xlsx")
 
+property_list <- read_excel("../02_raw_data/PROPERTY LIST.xlsx")
 aspen <- read_excel("../02_rawdata/traffic/ASPEN TRAFFIC REPORT_cleean.xlsx")
 aster <- read_excel("../02_rawdata/traffic/ASTER TRAFFIC REPORT_clean.xlsx")
 beryl <- read_excel("../02_rawdata/traffic/BERYL TRAFFIC REPORT_clean.xlsx")
@@ -141,8 +117,9 @@ wacourtvillage  <- read_excel("../02_rawdata/traffic/WASHINGTON COURT VILLAGE SQ
 
 ```
 
+# Joining Data
 
-# Combine Ledger Reports 
+## Combine Ledger Reports 
 ```{r}
 # pipeline to join all reports for base_1 datasets
 ledger_base <- bind_rows(x = ledger_01, y = ledger_02)
@@ -163,7 +140,7 @@ vtable(ledger_base)
 ```
 
 
-# Combine Traffic Reports 
+## Combine Traffic Reports 
 ```{r}
 # pipeline to join all reports for base_1 datasets
 trafficReportList <- bind_rows(aster, beryl, blacklake, boxcar, chinook, cobble,
@@ -175,9 +152,11 @@ summary(trafficReportList)
 vtable(trafficReportList)
 ```
 
-```{r}
-# rename Source
-library(dplyr)
+# Data Cleanup
+
+## Rename Sources in TrafficReportList
+```{r Rename sources in Traffic Report List, message=FALSE}
+
 trafficReportList <- trafficReportList %>% 
     mutate(Source = case_when(
          Source %in% c("Apartment list", "Apartment List") ~ "Apartmentlist.com"
@@ -223,7 +202,7 @@ trafficReportList <- trafficReportList %>%
 
 trafficReportList <- trafficReportList %>% 
     mutate(Source = case_when(
-         Source %in% c("Other", "Other tarragon property", "Other/Online",
+         Source %in% c("Other", "Other/Online",
                        "Other/Walk in", "Other/Walk-in") ~ "Other"
         ,TRUE ~ Source
         )
@@ -247,7 +226,14 @@ trafficReportList <- trafficReportList %>%
 
 trafficReportList <- trafficReportList %>% 
     mutate(Source = case_when(
-         Source %in% c("Property website", "Corporate Website") ~ "Property Website"
+         Source %in% c("Property website", "portal") ~ "Property Website"
+        ,TRUE ~ Source
+        )
+    )
+
+trafficReportList <- trafficReportList %>% 
+    mutate(Source = case_when(
+         Source %in% c("Other tarragon property","Tarragon Website",  "Corporate Website") ~ "Corporate Website"
         ,TRUE ~ Source
         )
     )
@@ -255,7 +241,10 @@ trafficReportList <- trafficReportList %>%
 table(trafficReportList$Source)
 ```
 
+## Rename Status and Result/Reason in TrafficReportList
+
 ```{r Status and Result/ Reason}
+
 trafficReportList <- trafficReportList %>%  rename("Result" = "Result/ Reason") 
 
 trafficReportList <- trafficReportList %>% 
@@ -383,19 +372,17 @@ trafficReportList$Result[is.na(trafficReportList$Result)] <- "Unknown"
 table(trafficReportList$Result)
 ```
 
-
 # Wrangle data
 
 ```{r}
 # all data in trafficReportList string type
 # need to convert datatypes 
 
-trafficReportList <- trafficReportList %>% 
-  recode("Source", Resident = 1)
+# trafficReportList <- trafficReportList %>% 
+#   recode("Source", Resident = 1)
 
 # Unit Type - Factor?
 
-library(lubridate)
 
 trafficReportList <- trafficReportList %>% 
   mutate("Status" = as.factor(Status)) %>% 
@@ -431,7 +418,70 @@ trafficReportList_top_source_result <- trafficReportList %>%
 
 ```
 
+```{r Add sources to the ledger_base}
+##
 
+write_xlsx(ledger_base, "../02_raw_data/LedgerSources/ledger_base")
+
+
+sourceList <- unique(trafficReportList$Source)
+
+source_df <- data_frame(sourceList)
+write_xlsx(source_df, "../02_raw_data/LedgerSources/sourceList")
+
+ledger_baseSource <- read.csv("../02_raw_data/LedgerSources/ledger_base_withsourcesCSV.csv")
+
+```
+
+```{r Ledger_base with dates}
+ledger_baseDates <- ledger_baseSource
+
+ledger_baseDates <- ledger_baseDates %>%
+ mutate('Year' = (substring(ledger_baseDates$'Date', 0, 4))) %>%
+ mutate('Month' = (substring(ledger_baseDates$'Date', 6, 7))) ##
+
+
+ledger_baseDates <- ledger_baseDates %>%
+ mutate('Season' = case_when(ledger_baseDates$Month == '01' ~ 'Q1-Winter',
+                             ledger_baseDates$Month == '02' ~ 'Q1-Winter',
+                             ledger_baseDates$Month == '03' ~ 'Q1-Winter',
+                             ledger_baseDates$Month == '04' ~ 'Q2-Spring',
+                             ledger_baseDates$Month == '05' ~ 'Q2-Spring',
+                             ledger_baseDates$Month == '06' ~ 'Q2-Spring',
+                             ledger_baseDates$Month == '07' ~ 'Q3-Summer',
+                             ledger_baseDates$Month == '08' ~ 'Q3-Summer',
+                             ledger_baseDates$Month == '09' ~ 'Q3-Summer',
+                             ledger_baseDates$Month == '10' ~ 'Q4-Fall',
+                             ledger_baseDates$Month == '11' ~ 'Q4-Fall',
+                             ledger_baseDates$Month == '12' ~ 'Q4-Fall'
+                             ))
+
+
+```
+
+```{r TrafficReportList with dates}
+
+
+trafficReportDates <- trafficReportList %>%
+ mutate('Year' = (substring(trafficReportList$'Event Date', 7, 11))) %>%
+ mutate('Month' = (substring(trafficReportList$'Event Date', 1, 2))) 
+
+trafficReportDates <- trafficReportDates %>%
+ mutate('Season' = case_when(trafficReportDates$Month == '01' ~ 'Q1-Winter',
+                             trafficReportDates$Month == '02' ~ 'Q1-Winter',
+                             trafficReportDates$Month == '03' ~ 'Q1-Winter',
+                             trafficReportDates$Month == '04' ~ 'Q2-Spring',
+                             trafficReportDates$Month == '05' ~ 'Q2-Spring',
+                             trafficReportDates$Month == '06' ~ 'Q2-Spring',
+                             trafficReportDates$Month == '07' ~ 'Q3-Summer',
+                             trafficReportDates$Month == '08' ~ 'Q3-Summer',
+                             trafficReportDates$Month == '09' ~ 'Q3-Summer',
+                             trafficReportDates$Month == '10' ~ 'Q4-Fall',
+                             trafficReportDates$Month == '11' ~ 'Q4-Fall',
+                             trafficReportDates$Month == '12' ~ 'Q4-Fall'
+                             ))
+
+```
 
 
 # Base EDA Step 1: Uni-variate non-graphical EDA
@@ -594,79 +644,32 @@ grid.arrange(
   geom_tile())
 ```
 
-
-
 # Marketing Metrics 
 
-
-## Grouping on the General Ledger data
-```{r Read in ledger_base with Source}
-##
-
-write_xlsx(ledger_base, "../02_raw_data/LedgerSources/ledger_base")
-
-
-sourceList <- unique(trafficReportList$Source)
-
-source_df <- data_frame(sourceList)
-write_xlsx(source_df, "../02_raw_data/LedgerSources/sourceList")
-
-ledger_baseSource <- read.csv("../02_raw_data/LedgerSources/ledger_base_withsourcesCSV.csv")
-
-```
-
-
+## Grouping on Ledger by Source
 
 ```{r Group by ledger_baseSource}
 
-ledger_baseSource %>% 
+ledgerSourceGroups <- ledger_baseSource %>% 
   select(Source) %>%
   tabyl(Source)
 
-
-```
-```{r}
-ledger_baseDates <- ledger_baseSource
-
-ledger_baseDates <- ledger_baseDates %>%
- mutate('Year' = (substring(ledger_baseDates$'Date', 0, 4))) %>%
- mutate('Month' = (substring(ledger_baseDates$'Date', 6, 7))) ##
-
-
-ledger_baseDates <- ledger_baseDates %>%
- mutate('Season' = case_when(ledger_baseDates$Month == '01' ~ 'Q1-Winter',
-                             ledger_baseDates$Month == '02' ~ 'Q1-Winter',
-                             ledger_baseDates$Month == '03' ~ 'Q1-Winter',
-                             ledger_baseDates$Month == '04' ~ 'Q2-Spring',
-                             ledger_baseDates$Month == '05' ~ 'Q2-Spring',
-                             ledger_baseDates$Month == '06' ~ 'Q2-Spring',
-                             ledger_baseDates$Month == '07' ~ 'Q3-Summer',
-                             ledger_baseDates$Month == '08' ~ 'Q3-Summer',
-                             ledger_baseDates$Month == '09' ~ 'Q3-Summer',
-                             ledger_baseDates$Month == '10' ~ 'Q4-Fall',
-                             ledger_baseDates$Month == '11' ~ 'Q4-Fall',
-                             ledger_baseDates$Month == '12' ~ 'Q4-Fall'
-                             ))
-
-
+##summary(ledgerSourceGroups)
+kable(ledgerSourceGroups)
 ```
 
+## Grouping on the Traffic reports by source
 
-## Grouping on the Traffic reports data
 ```{r Group by TrafficReportList - Source}
 
-trafficGroups <- trafficReportList %>% 
+trafficSourceGroups <- trafficReportList %>% 
   select(Source) %>%
   group_by(Source) %>%
   count(Source)
 
-trafficReportList %>% 
-  select(Source) %>%
-  tabyl(Source)
-
-summary(trafficGroups)
+summary(trafficSourceGroups)
 ```
-
+## Grouping on the Traffic reports data by Source and Status
 
 ```{r Group by TrafficReportList - Source, Status}
 trafficReportList %>% 
@@ -674,28 +677,9 @@ trafficReportList %>%
   tabyl(Source, Status)
 ```
 
-```{r Group by TrafficReportList - YEAR}
+## Grouping on the Traffic reports data by Year and Season
 
-trafficReportDates <- trafficReportList %>%
- mutate('Year' = (substring(trafficReportList$'Event Date', 7, 11))) %>%
- mutate('Month' = (substring(trafficReportList$'Event Date', 1, 2))) 
-
-trafficReportDates <- trafficReportDates %>%
- mutate('Season' = case_when(trafficReportDates$Month == '01' ~ 'Q1-Winter',
-                             trafficReportDates$Month == '02' ~ 'Q1-Winter',
-                             trafficReportDates$Month == '03' ~ 'Q1-Winter',
-                             trafficReportDates$Month == '04' ~ 'Q2-Spring',
-                             trafficReportDates$Month == '05' ~ 'Q2-Spring',
-                             trafficReportDates$Month == '06' ~ 'Q2-Spring',
-                             trafficReportDates$Month == '07' ~ 'Q3-Summer',
-                             trafficReportDates$Month == '08' ~ 'Q3-Summer',
-                             trafficReportDates$Month == '09' ~ 'Q3-Summer',
-                             trafficReportDates$Month == '10' ~ 'Q4-Fall',
-                             trafficReportDates$Month == '11' ~ 'Q4-Fall',
-                             trafficReportDates$Month == '12' ~ 'Q4-Fall'
-                             ))
-
-
+```{r Group by TrafficReportList - Dates}
 
 trafficReportDates %>%
   select(Year) %>%
@@ -706,23 +690,23 @@ trafficReportDates %>%
   tabyl(Season)
 ```
 
+## Grouping on the Traffic Property data
+
+```{r Group by TrafficProperty}
 
 ## Joining Traffic Reports Data with Property List 
-```{r}
 
 trafficProperty <- trafficReportList %>%
   left_join(property_list, by = c('Property Name' = 'Yardi Id Code'))
 
-```
-
-## Grouping on the Traffic Property data
-
-```{r Group by TrafficProperty}
 
 trafficProperty %>% 
   select('PROPERTY TYPE:') %>%
   tabyl('PROPERTY TYPE:')
 
+trafficProperty %>% 
+  select('LOCATION:') %>%
+  tabyl('LOCATION:')
 
 trafficProperty %>% 
   select('COUNTY:') %>%
@@ -732,8 +716,6 @@ trafficProperty %>%
 # Cost per Lead Analysis
 
 ```{r Grouping by Source GL and Traffic Report}
-
-library(sqldf)
 
 GLSourceGrouping <- sqldf("
       select Source, count(Source) countSource,
@@ -759,16 +741,20 @@ TRSourceGrouping <- sqldf("
       ")
 ```
 
+
+## Getting Cost per Lead
+
 ```{r Getting Cost per Lead}
 
 
 costPerLead <- GLSourceGrouping %>%
   full_join(TRSourceGrouping, "Source") %>%
   mutate(costPerLead = DifferenceDebitCredit/countLead,
-         costPerResident = costPerLead * ResidentStatusCount,
-         ROITest = DifferenceDebitCredit - (costPerLead * ResidentStatusCount))
-
+         costForAllResidents = costPerLead * ResidentStatusCount,
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
 ```
+
+## Getting Cost per Lead by Year
 
 ```{r Grouping by Year}
 
@@ -801,13 +787,15 @@ TRYearGrouping <- sqldf("
 costPerYear <- GLYearGrouping %>%
   full_join(TRYearGrouping, c("Source", "Year")) %>%
   mutate(costPerLead = DifferenceDebitCredit/countLead,
-         costPerResident = costPerLead * ResidentStatusCount,
-         ROITest = DifferenceDebitCredit - (costPerLead * ResidentStatusCount))
+         costForAllResidents = costPerLead * ResidentStatusCount,
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
 
 
 
 
 ```
+
+## Getting Cost per Lead by Season
 
 ```{r Grouping by Season}
 
@@ -837,12 +825,13 @@ TRSeasonGrouping <- sqldf("
 costPerSeason <- GLSeasonGrouping %>%
   full_join(TRSeasonGrouping, c("Source", "Season")) %>%
   mutate(costPerLead = DifferenceDebitCredit/countLead,
-         costPerResident = costPerLead * ResidentStatusCount,
-         ROITest = DifferenceDebitCredit - (costPerLead * ResidentStatusCount))
+         costForAllResidents = costPerLead * ResidentStatusCount,
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
 
 
 ```
 
+## Getting Cost per Lead by Property Type
 
 ```{r Grouping by Property Type }
 
@@ -856,6 +845,7 @@ GLPropertyTypeGrouping <- sqldf("
       from GLPropertyType
       group by [Property Type:]
       ")
+
 
 TRPropertyTypeGrouping <- sqldf("
      select *, (case when sq.ResidentStatusCount = 0 then 0
@@ -876,12 +866,12 @@ TRPropertyTypeGrouping <- sqldf("
 costPerPropertyType <- GLPropertyTypeGrouping %>%
   full_join(TRPropertyTypeGrouping, "PropertyType") %>%
     mutate(costPerLead = DifferenceDebitCredit/countLeadPropertyType,
-         costPerResident = costPerLead * ResidentStatusCount,
-         ROITest = DifferenceDebitCredit - (costPerLead * ResidentStatusCount))
-
-
+         costForAllResidents = costPerLead * ResidentStatusCount,
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
 
 ```
+
+## Getting Cost per Lead by County
 
 ```{r Grouping by County }
                           
@@ -892,6 +882,8 @@ GLCountyGrouping <- sqldf("
       from GLPropertyType
       group by [County:]
       ")
+
+
 
 TRCountyGrouping <- sqldf("
      select *, (case when sq.ResidentStatusCount = 0 then 0
@@ -912,9 +904,56 @@ TRCountyGrouping <- sqldf("
 costPerCounty <- GLCountyGrouping %>%
   full_join(TRCountyGrouping, "County") %>%
   mutate(costPerLead = DifferenceDebitCredit/countLeadCounty,
-         costPerResident = costPerLead * ResidentStatusCount,
-         ROITest = DifferenceDebitCredit - (costPerLead * ResidentStatusCount))
+         costForAllResidents = costPerLead * ResidentStatusCount,
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
+
+kable(costPerCounty)
 ```
+
+
+
+## Getting Cost per Lead by Location Type
+
+```{r Grouping by Location }
+                          
+GLLocationGrouping <- sqldf("
+      select [Location:] Location ,count([Location:]) countLocation,
+      sum(Debit) sumDebit, sum(Credit) sumCredit,
+      (sum(Debit) - sum(Credit)) DifferenceDebitCredit
+      from GLPropertyType
+      group by [Location:]
+      ")
+
+TRLocationGrouping <- sqldf("
+     select *, (case when sq.ResidentStatusCount = 0 then 0
+                    else cast(sq.ResidentStatusCount as float)/
+                         cast(sq.countLeadLocation as float)
+                    end
+                ) ResidentRate
+     from 
+        (select [Location:] Location , count([Location:]) countLeadLocation,
+          (select count(tp2.num_status) 
+          from trafficProperty tp2
+          where tp2.num_status = 1 and tp2.[Location:] = tp1.[Location:])                 ResidentStatusCount
+        from trafficProperty tp1
+        group by [Location:]) sq
+      ")
+
+
+costPerLocation <- GLLocationGrouping %>%
+  full_join(TRLocationGrouping, "Location") %>%
+  mutate(costPerLead = DifferenceDebitCredit/countLeadLocation,
+         costForAllResidents = costPerLead * ResidentStatusCount,
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
+```
+
+## Getting cost per lead by location type and source 
+
+```{r}
+
+```
+
+
 
 # Regression Analysis
 
