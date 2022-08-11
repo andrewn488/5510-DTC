@@ -743,6 +743,8 @@ costPerLead <- GLSourceGrouping %>%
   mutate(costPerLead = DifferenceDebitCredit/countLead,
          costForAllResidents = costPerLead * ResidentStatusCount,
          unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
+
+
 ```
 
 ## Getting Cost per Lead by Year
@@ -964,7 +966,7 @@ Ha: Total Spending impacts Status
 ## Join dataframes
 
 ```{r}
-join_df <- trafficReportList %>% 
+traffic_source_grouping <- trafficReportList %>% 
   right_join(GLSourceGrouping) %>% 
   drop_na()
 ```
@@ -973,7 +975,7 @@ join_df <- trafficReportList %>%
 ```{r logistic regression}
 
 
-reg_source <- glm(formula = num_status ~ Source, data = trafficReportList)
+reg_source <- glm(formula = num_status ~ Source, data = traffic_source_grouping)
 # reg_norm <- glm(formula = num_status ~ Source, data = trafficReportList_norm)
 
 export_summs(reg_source)
@@ -989,26 +991,26 @@ reg_county <- glm(formula = num_status ~ `COUNTY:`, data = trafficProperty)
 export_summs(reg_county)
 ```
 
-```{r}
-reg_county_source <- glm(formula = num_status ~ `COUNTY:` * Source, data = trafficProperty)
+```{r export dfs}
 
-export_summs(reg_county_source)
+write_xlsx(traffic_source_grouping, "../02_raw_data/output/traffic_source_grouping.csv")
+
+write_xlsx(trafficProperty, "../02_raw_data/output/trafficProperty.csv")
+
+write_xlsx(costPerCounty, "../02_raw_data/output/costPerCounty.csv")
+
+write_xlsx(costPerLead, "../02_raw_data/output/costPerLead.csv")
+
+write_xlsx(costPerLocation, "../02_raw_data/output/costPerLocation.csv")
+
+write_xlsx(costPerSeason, "../02_raw_data/output/costPerSeason.csv")
+
+write_xlsx(costPerPropertyType, "../02_raw_data/output/costPerPropertyType.csv")
+
+write_xlsx(costPerYear, "../02_raw_data/output/costPerYear.csv")
+
+
 ```
-
-
-
-```{r}
-# regression by location (rural / suburban / urban)
-reg_location <- glm(formula = num_status ~ `LOCATION:` * Source, data = trafficProperty)
-
-export_summs(reg_location)
-
-```
-
-
-+ pearson correlation
-+ add in a correlation matrix just to make it look fancy
-+ run some regressions
 
 
 # Interpretation of results
