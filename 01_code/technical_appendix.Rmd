@@ -725,6 +725,8 @@ GLSourceGrouping <- sqldf("
       group by Source
       ")
 
+kable(GLSourceGrouping)
+
 TRSourceGrouping <- sqldf("
      select *, (case when sq.ResidentStatusCount = 0 then 0
                     else cast(sq.ResidentStatusCount as float)/
@@ -739,6 +741,8 @@ TRSourceGrouping <- sqldf("
         from trafficReportList trp1
         group by Source) sq
       ")
+
+kable(TRSourceGrouping)
 ```
 
 
@@ -748,10 +752,14 @@ TRSourceGrouping <- sqldf("
 
 
 costPerLead <- GLSourceGrouping %>%
-  full_join(TRSourceGrouping, "Source") %>%
+  inner_join(TRSourceGrouping, "Source") %>%
   mutate(costPerLead = DifferenceDebitCredit/countLead,
          costForAllResidents = costPerLead * ResidentStatusCount,
-         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents) %>%
+  rename(TotalSpending = DifferenceDebitCredit) %>%
+  select(Source, TotalSpending, countLead, ResidentStatusCount, ResidentRate, costPerLead, costForAllResidents, unallocatedBudget)
+
+kable(costPerLead)
 ```
 
 ## Getting Cost per Lead by Year
@@ -765,8 +773,6 @@ GLYearGrouping <- sqldf("
       from ledger_baseDates
       group by Source, Year
       ")
-
-##get a full forecast data for 2022 since we only have 6 months of data now. Mutiply it by 2 if year = 2022
 
 
 TRYearGrouping <- sqldf("
@@ -785,13 +791,16 @@ TRYearGrouping <- sqldf("
       ")
 
 costPerYear <- GLYearGrouping %>%
-  full_join(TRYearGrouping, c("Source", "Year")) %>%
+  inner_join(TRYearGrouping, c("Source", "Year")) %>%
   mutate(costPerLead = DifferenceDebitCredit/countLead,
          costForAllResidents = costPerLead * ResidentStatusCount,
-         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents) %>%
+  rename(TotalSpending = DifferenceDebitCredit) %>%
+  select(Source, Year, TotalSpending, countLead, ResidentStatusCount, ResidentRate,  costPerLead, costForAllResidents, unallocatedBudget)
 
 
 
+kable(costPerYear)
 
 ```
 
@@ -823,11 +832,14 @@ TRSeasonGrouping <- sqldf("
       ")
 
 costPerSeason <- GLSeasonGrouping %>%
-  full_join(TRSeasonGrouping, c("Source", "Season")) %>%
+  inner_join(TRSeasonGrouping, c("Source", "Season")) %>%
   mutate(costPerLead = DifferenceDebitCredit/countLead,
          costForAllResidents = costPerLead * ResidentStatusCount,
-         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents) %>%
+  rename(TotalSpending = DifferenceDebitCredit) %>%
+  select(Source, Season, TotalSpending, countLead, ResidentStatusCount, ResidentRate,  costPerLead, costForAllResidents, unallocatedBudget)
 
+kable(costPerSeason)
 
 ```
 
@@ -835,7 +847,7 @@ costPerSeason <- GLSeasonGrouping %>%
 
 ```{r Grouping by Property Type }
 
-GLPropertyType <- left_join(ledger_base, property_list, by = c("Property"= "Yardi Id Code"))
+GLPropertyType <- left_join(ledger_baseSource, property_list, by = c("Property"= "Yardi Id Code"))
                           
 
 GLPropertyTypeGrouping <- sqldf("
@@ -864,10 +876,14 @@ TRPropertyTypeGrouping <- sqldf("
       ")
 
 costPerPropertyType <- GLPropertyTypeGrouping %>%
-  full_join(TRPropertyTypeGrouping, "PropertyType") %>%
+  inner_join(TRPropertyTypeGrouping, "PropertyType") %>%
     mutate(costPerLead = DifferenceDebitCredit/countLeadPropertyType,
          costForAllResidents = costPerLead * ResidentStatusCount,
-         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents) %>%
+  rename(TotalSpending = DifferenceDebitCredit, countLead = countLeadPropertyType) %>%
+  select(PropertyType, TotalSpending, countLead, ResidentStatusCount, ResidentRate,  costPerLead, costForAllResidents, unallocatedBudget)
+
+kable(costPerPropertyType)
 
 ```
 
@@ -902,10 +918,12 @@ TRCountyGrouping <- sqldf("
 
 
 costPerCounty <- GLCountyGrouping %>%
-  full_join(TRCountyGrouping, "County") %>%
+  inner_join(TRCountyGrouping, "County") %>%
   mutate(costPerLead = DifferenceDebitCredit/countLeadCounty,
          costForAllResidents = costPerLead * ResidentStatusCount,
-         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents) %>%
+  rename(TotalSpending = DifferenceDebitCredit, countLead = countLeadCounty) %>%
+  select(County, TotalSpending, countLead, ResidentStatusCount, ResidentRate,  costPerLead, costForAllResidents, unallocatedBudget)
 
 kable(costPerCounty)
 ```
@@ -941,18 +959,146 @@ TRLocationGrouping <- sqldf("
 
 
 costPerLocation <- GLLocationGrouping %>%
-  full_join(TRLocationGrouping, "Location") %>%
+  inner_join(TRLocationGrouping, "Location") %>%
   mutate(costPerLead = DifferenceDebitCredit/countLeadLocation,
          costForAllResidents = costPerLead * ResidentStatusCount,
-         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents)  %>%
+  rename(TotalSpending = DifferenceDebitCredit, countLead = countLeadLocation) %>%
+  select(Location, TotalSpending, countLead, ResidentStatusCount, ResidentRate,  costPerLead, costForAllResidents, unallocatedBudget)
+
+kable(costPerLocation)
 ```
 
-## Getting cost per lead by location type and source 
+# Cost per Lead by Source
+
+## Getting Cost per Lead by Property Type and Source 
 
 ```{r}
 
+GLPropertySourceGrouping <- sqldf("
+      select [Property Type:] PropertyType, Source,  ([Property Type:] || Source) PS,
+      count(*) countPropertySource,
+      sum(Debit) sumDebit, sum(Credit) sumCredit,
+      (sum(Debit) - sum(Credit)) DifferenceDebitCredit
+      from GLPropertyType
+      group by [Property Type:], Source
+      ")
+
+
+TRPropertySourceGrouping <- sqldf("
+     select *, (sq.PropertyType || sq.Source) PS,
+                (case when sq.ResidentStatusCount = 0 then 0
+                    else cast(sq.ResidentStatusCount as float)/
+                         cast(sq.countLeadPropertySource as float)
+                    end
+                ) ResidentRate
+     from 
+        (select [Property Type:] PropertyType, Source,
+        count(*) countLeadPropertySource,
+          (select count(tp2.num_status) 
+          from trafficProperty tp2
+          where tp2.num_status = 1 and tp2.[Property Type:] = tp1.[Property Type:] and tp2.Source = tp1.Source)                 ResidentStatusCount
+        from trafficProperty tp1
+        group by [Property Type:], Source) sq
+      ")
+
+costPerPropertySource <- GLPropertySourceGrouping %>%
+  inner_join(TRPropertySourceGrouping, "PS") %>%
+    mutate(costPerLead = DifferenceDebitCredit/countLeadPropertySource,
+         costForAllResidents = costPerLead * ResidentStatusCount,
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents) %>%
+  rename(TotalSpending = DifferenceDebitCredit, countLead = countLeadPropertySource,
+         PropertyType = PropertyType.x, Source = Source.x) %>%
+  select(PropertyType, Source, TotalSpending, countLead, ResidentStatusCount, ResidentRate,  costPerLead, costForAllResidents, unallocatedBudget)
+
+kable(costPerPropertySource)
+
 ```
 
+
+## Getting Cost per Lead by County and Source
+
+```{r}
+GLCountySourceGrouping <- sqldf("
+      select [County:] County, Source,  ([County:] || Source) CS,
+      count(*) countCountySource,
+      sum(Debit) sumDebit, sum(Credit) sumCredit,
+      (sum(Debit) - sum(Credit)) DifferenceDebitCredit
+      from GLPropertyType
+      group by [County:], Source
+      ")
+
+
+TRCountySourceGrouping <- sqldf("
+     select *, (sq.County || sq.Source) CS,
+                (case when sq.ResidentStatusCount = 0 then 0
+                    else cast(sq.ResidentStatusCount as float)/
+                         cast(sq.countLeadCountySource as float)
+                    end
+                ) ResidentRate
+     from 
+        (select [County:] County, Source,
+        count(*) countLeadCountySource,
+          (select count(tp2.num_status) 
+          from trafficProperty tp2
+          where tp2.num_status = 1 and tp2.[County:] = tp1.[County:] and tp2.Source = tp1.Source)                 ResidentStatusCount
+        from trafficProperty tp1
+        group by [County:], Source) sq
+      ")
+
+costPerCountySource <- GLCountySourceGrouping %>%
+  inner_join(TRCountySourceGrouping, "CS") %>%
+    mutate(costPerLead = DifferenceDebitCredit/countLeadCountySource,
+         costForAllResidents = costPerLead * ResidentStatusCount,
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents) %>%
+  rename(TotalSpending = DifferenceDebitCredit, countLead = countLeadCountySource,
+         County = County.x, Source = Source.x) %>%
+  select(County, Source, TotalSpending, countLead, ResidentStatusCount, ResidentRate,  costPerLead, costForAllResidents, unallocatedBudget)
+
+kable(costPerCountySource)
+```
+
+## Getting Cost per Lead by Location Type and Source
+
+```{r}
+GLLocationSourceGrouping <- sqldf("
+      select [Location:] Location, Source,  ([Location:] || Source) LS,
+      count(*) countLocationSource,
+      sum(Debit) sumDebit, sum(Credit) sumCredit,
+      (sum(Debit) - sum(Credit)) DifferenceDebitCredit
+      from GLPropertyType
+      group by [Location:], Source
+      ")
+
+
+TRLocationSourceGrouping <- sqldf("
+     select *, (sq.Location || sq.Source) LS,
+                (case when sq.ResidentStatusCount = 0 then 0
+                    else cast(sq.ResidentStatusCount as float)/
+                         cast(sq.countLeadLocationSource as float)
+                    end
+                ) ResidentRate
+     from 
+        (select [Location:] Location, Source,
+        count(*) countLeadLocationSource,
+          (select count(tp2.num_status) 
+          from trafficProperty tp2
+          where tp2.num_status = 1 and tp2.[Location:] = tp1.[Location:] and tp2.Source = tp1.Source)                 ResidentStatusCount
+        from trafficProperty tp1
+        group by [Location:], Source) sq
+      ")
+
+costPerLocationSource <- GLLocationSourceGrouping %>%
+  inner_join(TRLocationSourceGrouping, "LS") %>%
+    mutate(costPerLead = DifferenceDebitCredit/countLeadLocationSource,
+         costForAllResidents = costPerLead * ResidentStatusCount,
+         unallocatedBudget = DifferenceDebitCredit - costForAllResidents) %>%
+  rename(TotalSpending = DifferenceDebitCredit, countLead = countLeadLocationSource,
+         Location = Location.x, Source = Source.x) %>%
+  select(Location, Source, TotalSpending, countLead, ResidentStatusCount, ResidentRate,  costPerLead, costForAllResidents, unallocatedBudget)
+
+kable(costPerLocationSource)
+```
 
 
 # Regression Analysis
