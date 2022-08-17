@@ -1042,6 +1042,25 @@ write_xlsx(costPerYear, "../02_raw_data/output/costPerYear.csv")
 ```
 
 
+```{r}
+write_xlsx(traffic_source_grouping, "../02_raw_data/output/traffic_source_grouping.xlsx")
+
+write_xlsx(trafficProperty, "../02_raw_data/output/trafficProperty.xlsx")
+
+write_xlsx(costPerCounty, "../02_raw_data/output/costPerCounty.xlsx")
+
+write_xlsx(costPerLead, "../02_raw_data/output/costPerLead.xlsx")
+
+write_xlsx(costPerLocation, "../02_raw_data/output/costPerLocation.xlsx")
+
+write_xlsx(costPerSeason, "../02_raw_data/output/costPerSeason.xlsx")
+
+write_xlsx(costPerPropertyType, "../02_raw_data/output/costPerPropertyType.xlsx")
+
+write_xlsx(costPerYear, "../02_raw_data/output/costPerYear.xlsx")
+```
+
+
 # Interpretation of results
 
 + We reject null hypothesis for both scenarios
