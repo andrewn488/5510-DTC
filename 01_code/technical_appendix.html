@@ -14384,8 +14384,9 @@ Zillow
 </tbody>
 </table>
 </div>
-<div id="ratio-of-status-by-property-type" class="section level2">
-<h2>Ratio of Status by Property Type</h2>
+</div>
+<div id="ratio-of-status-by-property-type" class="section level1">
+<h1>Ratio of Status by Property Type</h1>
 <pre class="r"><code>RatioStatus &lt;- sqldf(&quot;
 select *, cast(sq.CountCanceledLeads as float)/cast(sq.CountLeads as float) RatioStatus from
   (select  count(*) CountLeads, 
@@ -14514,7 +14515,6 @@ Mid-rise
 </tr>
 </tbody>
 </table>
-</div>
 </div>
 <div id="regression-analysis" class="section level1">
 <h1>Regression Analysis</h1>
@@ -14720,7 +14720,9 @@ write_xlsx(costPerPropertySource, &quot;../02_raw_data/output/costPerPropertySou
 
 write_xlsx(costPerCountySource, &quot;../02_raw_data/output/costPerCountySource.csv&quot;)
 
-write_xlsx(costPerLocationSource, &quot;../02_raw_data/output/costPerLocationSource.csv&quot;)</code></pre>
+write_xlsx(costPerLocationSource, &quot;../02_raw_data/output/costPerLocationSource.csv&quot;)
+
+write_xlsx(RatioStatusbyPropertyType, &quot;../02_raw_data/output/RatioStatusbyPropertyType.csv&quot;)</code></pre>
 </div>
 <div id="interpretation-of-results" class="section level1">
 <h1>Interpretation of results</h1>

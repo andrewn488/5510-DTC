@@ -1083,7 +1083,7 @@ costPerLocationSource <- GLLocationSourceGrouping %>%
 kable(costPerLocationSource)
 ```
 
-## Ratio of Status by Property Type 
+# Ratio of Status by Property Type 
 
 ```{r}
 RatioStatus <- sqldf("
@@ -1217,6 +1217,8 @@ write_xlsx(costPerPropertySource, "../02_raw_data/output/costPerPropertySource.c
 write_xlsx(costPerCountySource, "../02_raw_data/output/costPerCountySource.csv")
 
 write_xlsx(costPerLocationSource, "../02_raw_data/output/costPerLocationSource.csv")
+
+write_xlsx(RatioStatusbyPropertyType, "../02_raw_data/output/RatioStatusbyPropertyType.csv")
 
 
 ```
