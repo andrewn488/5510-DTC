@@ -743,6 +743,8 @@ costPerLead <- GLSourceGrouping %>%
   mutate(costPerLead = DifferenceDebitCredit/countLead,
          costForAllResidents = costPerLead * ResidentStatusCount,
          unallocatedBudget = DifferenceDebitCredit - costForAllResidents)
+
+
 ```
 
 ## Getting Cost per Lead by Year
@@ -948,7 +950,10 @@ costPerLocation <- GLLocationGrouping %>%
 
 # Regression Analysis
 
-What drives Status?
++ Independent variable: num_status (if they signed a lease or not)
++ Dependent variables: total spending (overall spending, by source, etc.)
+
+What Source drives Status?
 Ho: some activity does NOT impact the variable of interest
 Ha: some activity DOES impact the variable of interest
 
@@ -957,75 +962,122 @@ Variable of interest <- Status
 Ho: Source does not impact Status
 Ha: Source impacts Status
 
-What drives Spending?
-Ho: Total Spending does not impact Status
-Ha: Total Spending impacts Status
+What County drive Status??
+Ho: County does not impact Status
+Ha: County  impacts Status
 
 ## Join dataframes
 
 ```{r}
-join_df <- trafficReportList %>% 
+traffic_source_grouping <- trafficReportList %>% 
   right_join(GLSourceGrouping) %>% 
   drop_na()
 ```
 
-
 ```{r logistic regression}
 
 
-reg_source <- glm(formula = num_status ~ Source, data = trafficReportList)
-# reg_norm <- glm(formula = num_status ~ Source, data = trafficReportList_norm)
+reg_source <- glm(formula = num_status ~ Source, data = traffic_source_grouping)
 
 export_summs(reg_source)
+summary(reg_source)
 
 ```
 
-+ Independent variable: num_status (if they signed a lease)
-+ Dependent variables: total spending (overall spending, by source, etc.)
+**Comments**
+
++ Ho: Source does not impact Status
+
+    + For every 1 unit increase in tenants signing a lease, there is a 0.11 unit increase in leases signed by Referral
+        + This is significant at the 1% level
+    + For every 1 unit increase in tenants signing a lease, there is a 0.04 unit increase in leases signed via Google
+        + This is significant at the 5% level
+    + We reject the null hypothesis due to a low p-value < 0.05
+
++ Ha: Source impacts Status
+
+    + We fail to reject the alternative hypothesis due to low p-value < 0.05
+
 
 ```{r}
 reg_county <- glm(formula = num_status ~ `COUNTY:`, data = trafficProperty)
 
 export_summs(reg_county)
+summary(reg_county)
 ```
+
+**Comments**
+
++ Ho: County does not impact Status
+
+    + For every 1 unit increase in a person signing a lease, there is a 0.08 unit association with leases being signed in Pierce County (compared to King county)
+        + This is statistically significant at the 0.1 level
+        + We reject the null hypothesis due to very low p-value (<2e-16)
+    + There appears to be no effect in Thurston county compared to King County with p-value 0.509
+
++ Ha: County impacts Status
+
+    + We fail to reject the alternative hypothesis because (<2e-16) > 0.05
+
+
+```{r export dfs}
+
+write_xlsx(traffic_source_grouping, "../02_raw_data/output/traffic_source_grouping.csv")
+
+write_xlsx(trafficProperty, "../02_raw_data/output/trafficProperty.csv")
+
+write_xlsx(costPerCounty, "../02_raw_data/output/costPerCounty.csv")
+
+write_xlsx(costPerLead, "../02_raw_data/output/costPerLead.csv")
+
+write_xlsx(costPerLocation, "../02_raw_data/output/costPerLocation.csv")
+
+write_xlsx(costPerSeason, "../02_raw_data/output/costPerSeason.csv")
+
+write_xlsx(costPerPropertyType, "../02_raw_data/output/costPerPropertyType.csv")
+
+write_xlsx(costPerYear, "../02_raw_data/output/costPerYear.csv")
+
+
+```
+
 
 ```{r}
-reg_county_source <- glm(formula = num_status ~ `COUNTY:` * Source, data = trafficProperty)
+write_xlsx(traffic_source_grouping, "../02_raw_data/output/traffic_source_grouping.xlsx")
 
-export_summs(reg_county_source)
+write_xlsx(trafficProperty, "../02_raw_data/output/trafficProperty.xlsx")
+
+write_xlsx(costPerCounty, "../02_raw_data/output/costPerCounty.xlsx")
+
+write_xlsx(costPerLead, "../02_raw_data/output/costPerLead.xlsx")
+
+write_xlsx(costPerLocation, "../02_raw_data/output/costPerLocation.xlsx")
+
+write_xlsx(costPerSeason, "../02_raw_data/output/costPerSeason.xlsx")
+
+write_xlsx(costPerPropertyType, "../02_raw_data/output/costPerPropertyType.xlsx")
+
+write_xlsx(costPerYear, "../02_raw_data/output/costPerYear.xlsx")
 ```
-
-
-
-```{r}
-# regression by location (rural / suburban / urban)
-reg_location <- glm(formula = num_status ~ `LOCATION:` * Source, data = trafficProperty)
-
-export_summs(reg_location)
-
-```
-
-
-+ pearson correlation
-+ add in a correlation matrix just to make it look fancy
-+ run some regressions
 
 
 # Interpretation of results
 
-+ highly correlated variables
-+ lower correlated variables
-+ regression analysis
-+ interaction variables
-+ interpretation of variability
++ We reject null hypothesis for both scenarios
++ Referrals in Pierce county have highest likelihood of leases being signed
+
 
 # Conclusion
 
++ We are seeing the chances of tenants seeking residence in Pierce county are higher compared to King and Thurston county
++ 
 
 
 # Future Research
 
-
++ Implement ML clustering algorithm to predict where residents will sign leases
++ Implement ML prediction model to predict if a lead results in a lease
++ Significance testing on unit type to help TPS determine types of properties to invest in 
 
 
 
