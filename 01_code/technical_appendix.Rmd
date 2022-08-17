@@ -115,6 +115,8 @@ wacourtflat  <- read_excel("../02_rawdata/traffic/WASHINGTON COURT FLATS TRAFFIC
 wacourtres  <- read_excel("../02_rawdata/traffic/WASHINGTON COURT RESIDENTIAL TRAFFIC REPORT_clean.xlsx")
 wacourtvillage  <- read_excel("../02_rawdata/traffic/WASHINGTON COURT VILLAGE SQUARE TRAFFIC REPORT_clean.xlsx")
 
+dwell <- dwell %>%
+  mutate('Property Name' = case_when('Property Name' == "Dwell" ~ "dwell"))
 ```
 
 # Joining Data
@@ -675,6 +677,10 @@ summary(trafficSourceGroups)
 trafficReportList %>% 
   select(Source, Status) %>%
   tabyl(Source, Status)
+
+trafficReportList %>% 
+  select(`Property Name`, num_status) %>%
+  tabyl(`Property Name`, num_status)
 ```
 
 ## Grouping on the Traffic reports data by Year and Season
@@ -1098,6 +1104,35 @@ costPerLocationSource <- GLLocationSourceGrouping %>%
   select(Location, Source, TotalSpending, countLead, ResidentStatusCount, ResidentRate,  costPerLead, costForAllResidents, unallocatedBudget)
 
 kable(costPerLocationSource)
+```
+## Ratio of Status by Property Type 
+
+```{r}
+
+RatioStatus <- sqldf("
+select *, cast(sq.CountCanceledLeads as float)/cast(sq.CountLeads as float) RatioStatus from
+  (select  count(*) CountLeads, 
+        (select count(*)
+        from trafficProperty tp2 
+        where tp2.Status = 'Canceled'
+        ) CountCanceledLeads
+        from trafficProperty tp1
+        ) sq
+      ")
+
+
+RatioStatusbyPropertyType <- sqldf("
+select *, cast(sq.CountCanceledLeads as float)/cast(sq.CountLeads as float) RatioStatus from
+  (select [Property Type:], count(*) CountLeads, 
+        (select count(*)
+        from trafficProperty tp2 
+        where tp2.Status = 'Canceled' and tp2.[Property Type:] = tp1.[Property Type:]
+        group by [Property Type:] ) CountCanceledLeads
+        from trafficProperty tp1
+        group by [Property Type:]) sq
+      ")
+
+
 ```
 
 
