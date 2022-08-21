@@ -2,12 +2,18 @@
 title: "TPS Analysis Technical Appendix"
 author: "Andrew Nalundasan, Lynna Tran, Rosalie Sherry, Vishaal Diwan"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
-output: 
+output:
   html_document:
-    toc: true
+    toc: yes
     toc_depth: 3
-    toc_float: true
-    number_sections: false
+    toc_float: yes
+    number_sections: no
+  word_document:
+    toc: yes
+    toc_depth: '3'
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
 ---
 
 ```{r setup, include=FALSE}
@@ -146,7 +152,7 @@ vtable(ledger_base)
 ## Combine Traffic Reports 
 ```{r}
 # pipeline to join all reports for base_1 datasets
-trafficReportList <- bind_rows(aster, beryl, blacklake, boxcar, chinook, cobble,
+trafficReportList <- bind_rows(aspen,aster, beryl, blacklake, boxcar, chinook, cobble,
                            dwell, edition, fourlakes, glacier1, glacier2, monticello,
                            palermo, renwood, riverside,sawyertrail_th1,    sawyertrail_th2,
                            sawyertrail1, sawyertrail2, wacourtflat, wacourtres, wacourtvillage)
@@ -1241,6 +1247,21 @@ write_xlsx(RatioStatusbyPropertyType, "../02_raw_data/output/RatioStatusbyProper
 + Implement ML clustering algorithm to predict where residents will sign leases
 + Implement ML prediction model to predict if a lead results in a lease
 + Significance testing on unit type to help TPS determine types of properties to invest in 
+
+
+```{r Getting Values for our Report}
+
+TotalLeads <- sqldf('
+  select *, (cast(sq.ResidentCount as float)/ 
+            cast(sq.TotalLeads as float)) ResidentRate 
+  from
+  (select cast(count(*) as float) TotalLeads,
+  (select cast(count(*) as float) from trafficReportList
+  where num_status = 1) ResidentCount
+  from trafficReportList) sq
+  ')
+
+```
 
 
 
