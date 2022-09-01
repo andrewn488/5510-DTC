@@ -35,7 +35,7 @@ library(sqldf)
 ```
 
 
-```{r Directory for Lynna}
+```{r Directory for Lynna, eval=FALSE, include=FALSE}
 setwd("/Users/lynnatran/Documents/MSBA/Capstone Project/Repository/5510-DTC/02_rawdata")
 
 ```
@@ -1020,7 +1020,7 @@ summary(reg_county)
     + We fail to reject the alternative hypothesis because (<2e-16) > 0.05
 
 
-```{r export dfs}
+```{r export dfs, eval=FALSE, include=FALSE}
 
 write_xlsx(traffic_source_grouping, "../02_raw_data/output/traffic_source_grouping.csv")
 
@@ -1042,7 +1042,7 @@ write_xlsx(costPerYear, "../02_raw_data/output/costPerYear.csv")
 ```
 
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 write_xlsx(traffic_source_grouping, "../02_raw_data/output/traffic_source_grouping.xlsx")
 
 write_xlsx(trafficProperty, "../02_raw_data/output/trafficProperty.xlsx")

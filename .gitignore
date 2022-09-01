@@ -38,8 +38,10 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 .DS_Store
-<<<<<<< HEAD
+
 *.html
-=======
-*.html
->>>>>>> bd8da6767b4a6c99ba3122e5e90acc58edec81a3
+*.xlsx
+*.png
+*.pdf
+*.docx
+*.pptx
